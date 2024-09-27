@@ -28,9 +28,9 @@ jobs:
         run: npm install
         working-directory: frontend
 
-      # Build the backend
+      # Build the backend using npx to avoid permission issues
       - name: Build backend
-        run: npm run build
+        run: npx nest build
         working-directory: backend
 
       # Build the frontend
@@ -38,9 +38,9 @@ jobs:
         run: npm run build
         working-directory: frontend
 
-      # Run backend tests
+      # Run backend tests using npx
       - name: Run backend tests
-        run: npm test
+        run: npx jest
         working-directory: backend
 
       # Run frontend tests (if available)
