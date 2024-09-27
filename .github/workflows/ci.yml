@@ -18,13 +18,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install dependencies
+      # Install backend dependencies
+      - name: Install backend dependencies
         run: npm install
+        working-directory: backend
 
-      - name: Run tests
+      # Install frontend dependencies
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: frontend
+
+      # Build the backend
+      - name: Build backend
+        run: npm run build
+        working-directory: backend
+
+      # Build the frontend
+      - name: Build frontend
+        run: npm run build
+        working-directory: frontend
+
+      # Run backend tests
+      - name: Run backend tests
         run: npm test
+        working-directory: backend
+
+      # Run frontend tests (if available)
+      - name: Run frontend tests
+        run: npm test
+        working-directory: frontend
