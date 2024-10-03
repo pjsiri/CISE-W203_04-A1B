@@ -18,6 +18,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      # Install Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
       # Install backend dependencies
       - name: Install backend dependencies
         run: npm install
@@ -27,6 +33,10 @@ jobs:
       - name: Install frontend dependencies
         run: npm install
         working-directory: frontend
+
+      # Install NestJS CLI globally
+      - name: Install NestJS CLI
+        run: npm install -g @nestjs/cli
 
       # Build the backend using npx to avoid permission issues
       - name: Build backend
