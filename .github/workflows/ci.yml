@@ -30,12 +30,12 @@ jobs:
 
       # Build the backend
       - name: Build backend
-        run: npm run build
+        run: npm run dev
         working-directory: backend
 
       # Build the frontend
       - name: Build frontend
-        run: npm run build
+        run: npm run dev
         working-directory: frontend
 
       # Run backend tests
