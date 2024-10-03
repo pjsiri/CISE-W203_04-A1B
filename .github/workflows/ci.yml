@@ -18,7 +18,7 @@ jobs:
       # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v2
-        
+
       # Step 2: Set up Node.js version
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -29,32 +29,32 @@ jobs:
       - name: Install NestJS CLI globally
         run: npm install -g @nestjs/cli
 
-      # Install backend dependencies
+      # Step 4: Install backend dependencies
       - name: Install backend dependencies
         run: npm install
         working-directory: backend
 
-      # Install frontend dependencies
+      # Step 5: Install frontend dependencies
       - name: Install frontend dependencies
         run: npm install
         working-directory: frontend
 
-      # Build the backend
+      # Step 6: Build the backend
       - name: Build backend
         run: npm run build
         working-directory: backend
 
-      # Build the frontend
+      # Step 7: Build the frontend
       - name: Build frontend
         run: npm run build
         working-directory: frontend
 
-      # Run backend tests
+      # Step 8: Run backend tests
       - name: Run backend tests
         run: npm test
         working-directory: backend
 
-      # Run frontend tests (if available)
+      # Step 9: Run frontend tests (if available)
       - name: Run frontend tests
         run: npm test
         working-directory: frontend
