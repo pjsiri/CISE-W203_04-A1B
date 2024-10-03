@@ -12,6 +12,9 @@ const mongoose_1 = require("@nestjs/mongoose");
 const config_1 = require("@nestjs/config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
+const article_schema_1 = require("./article/schemas/article.schema");
+const article_controller_1 = require("./article/article.controller");
+const article_service_1 = require("./article/article.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -20,9 +23,10 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot(),
             mongoose_1.MongooseModule.forRoot(process.env.DB_URL),
+            mongoose_1.MongooseModule.forFeature([{ name: 'Article', schema: article_schema_1.ArticleSchema }]),
         ],
-        controllers: [app_controller_1.AppController],
-        providers: [app_service_1.AppService],
+        controllers: [app_controller_1.AppController, article_controller_1.ArticleController],
+        providers: [app_service_1.AppService, article_service_1.ArticleService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
