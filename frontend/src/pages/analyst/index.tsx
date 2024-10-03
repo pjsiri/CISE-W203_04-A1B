@@ -56,42 +56,56 @@ const AnalystForm = () => {
   }
 
   return (
-    <div>
-      <h1>Welcome Analyst</h1>
-      <h2>Enter New Article Information</h2>
-      <form onSubmit={handleSubmit}>
+  <div>
+    <h1>Welcome Analyst</h1>
+    <h2>Enter New Article Information</h2>
+    <form onSubmit={handleSubmit}>
+      <div>
         <label>
           Title:
           <input value={title} onChange={(e) => setTitle(e.target.value)} required />
         </label>
+      </div>
+      <div>
         <label>
           Authors:
           <input value={authors} onChange={(e) => setAuthors(e.target.value)} required />
         </label>
+      </div>
+      <div>
         <label>
           Source:
           <input value={source} onChange={(e) => setSource(e.target.value)} required />
         </label>
+      </div>
+      <div>
         <label>
           Publication Year:
           <input value={pubYear} onChange={(e) => setPubYear(e.target.value)} required />
         </label>
+      </div>
+      <div>
         <label>
           DOI:
           <input value={doi} onChange={(e) => setDoi(e.target.value)} required />
         </label>
+      </div>
+      <div>
         <label>
           Claim:
           <input value={claim} onChange={(e) => setClaim(e.target.value)} required />
         </label>
+      </div>
+      <div>
         <label>
           Evidence:
           <input value={evidence} onChange={(e) => setEvidence(e.target.value)} required />
         </label>
-        <button type="submit">Save Article</button>
-      </form>
-    </div>
+      </div>
+      <button type="submit">Save Article</button>
+    </form>
+  </div>
   );
-};
+}
 
 export default AnalystForm;

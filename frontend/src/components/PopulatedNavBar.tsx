@@ -33,9 +33,6 @@ const PopulatedNavBar = () => {
             <NavItem route="/moderator">
                 Moderator
             </NavItem>
-            <NavItem route="/analyst">
-                Analyst
-            </NavItem>
             {session?.user?.role === 'analyst' && (
               <NavItem route="/analyst">Analyst</NavItem>
             )}
