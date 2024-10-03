@@ -2,8 +2,21 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import NavBar from "./nav/NavBar";
 import NavDropdown from "./nav/NavDropdown";
 import NavItem from "./nav/NavItem";
+import { useSession, signIn, signOut } from "next-auth/react";
+
+// Extend the Session type to include the role property
+declare module "next-auth" {
+  interface Session {
+    user: {
+      role?: string;
+    };
+  }
+}
 
 const PopulatedNavBar = () => {
+
+  const { data: session } = useSession();
+
     return (
         <NavBar>
             <NavItem>SPEED</NavItem>
@@ -17,6 +30,14 @@ const PopulatedNavBar = () => {
                     <NavItem route="/articles/new">Submit new</NavItem>
                 </NavDropdown>
             </NavItem>
+            {session?.user?.role === 'analyst' && (
+              <NavItem route="/analyst">Analyst</NavItem>
+            )}
+            {session ? (
+              <NavItem onClick={() => signOut()}>Sign Out</NavItem>
+            ) : (
+              <NavItem onClick={() => signIn()}>Sign In</NavItem>
+            )}
         </NavBar>
     );
 };
