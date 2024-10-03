@@ -1,1 +1,27 @@
-.vercel
+# Ignore frontend node_modules
+frontend\node_modules\
+
+# Ignore backend node_modules
+backend\node_modules\
+
+node_modules/
+
+# Ignore build outputs
+backend/dist/
+dist/
+.next/
+build/
+
+# Ignore log files
+*.log
+
+# Ignore environment variables
+backend\.env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore Vercel configuration
+.vercel/
