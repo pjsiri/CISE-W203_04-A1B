@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { getSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 
 interface Article {
     id: number;
@@ -15,6 +17,22 @@ interface Article {
 
 const ModeratorPage = () => {
     const [articles, setArticles] = useState<Article[]>([]);
+    const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
+    // Check if the user is authenticated
+    useEffect(() => {
+        const securePage = async () => {
+        const session = await getSession();
+        if (!session) {
+            // If the user is not authenticated, redirect to sign-in page
+            router.push('/auth/signin');
+        } else {
+            setLoading(false); // Allow access if the user is authenticated
+        }
+        };
+        securePage();
+    }, [router]);
 
     // Simulate fetching articles for moderation
     useEffect(() => {

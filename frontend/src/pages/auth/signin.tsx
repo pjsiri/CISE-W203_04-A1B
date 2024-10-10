@@ -17,7 +17,12 @@ const SignInPage = () => {
     if (result?.error) {
       setError('Invalid username or password');
     } else {
-      window.location.href = '/analyst'; // Redirect to analyst page after successful login
+      if (username === "analyst") {
+        window.location.href = '/analyst'; // Redirect to analyst page after successful login
+      } 
+      else if (username === "moderator") {
+        window.location.href = '/moderator'; // Redirect to analyst page after successful login
+      } 
     }
   };
 
