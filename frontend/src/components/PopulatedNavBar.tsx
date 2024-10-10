@@ -27,7 +27,7 @@ const PopulatedNavBar = () => {
                 Articles <IoMdArrowDropdown />
                 <NavDropdown>
                     <NavItem route="/articles">View articles</NavItem>
-                    <NavItem route="/articles/new">Submit new</NavItem>
+                    <NavItem route="/articles/CreateArticle">Submit article</NavItem>
                 </NavDropdown>
             </NavItem>
             {session?.user?.role === 'analyst' && (
