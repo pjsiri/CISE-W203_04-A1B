@@ -4,9 +4,9 @@ export interface Article extends Document {
   readonly title: string;
   readonly authors: string;
   readonly source: string;
-  readonly pubYear: number;
-  readonly volume: number;
-  readonly number: number;
+  readonly pubYear: string;
+  readonly volume: string;
+  readonly number: string;
   readonly pages: string;
   readonly doi: string;
   readonly summary: string;
