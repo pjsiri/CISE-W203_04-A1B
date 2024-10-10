@@ -30,11 +30,11 @@ const PopulatedNavBar = () => {
                     <NavItem route="/articles/new">Submit new</NavItem>
                 </NavDropdown>
             </NavItem>
-            <NavItem route="/moderator">
-                Moderator
-            </NavItem>
             {session?.user?.role === 'analyst' && (
               <NavItem route="/analyst">Analyst</NavItem>
+            )}
+            {session?.user?.role === 'moderator' && (
+              <NavItem route="/moderator">Moderator</NavItem>
             )}
             {session ? (
               <NavItem onClick={() => signOut()}>Sign Out</NavItem>

@@ -12,9 +12,14 @@ export default NextAuth({
       authorize: async (credentials) => {
         // Add logic to verify the credentials from database later
         // For testing, a user is hard-coded.
-        const validUser = credentials && credentials.username === 'analyst' && credentials.password === '123';
+        const validUser = credentials && (credentials.username === 'analyst' || credentials.username === 'moderator') && credentials.password === '123';
         if (validUser) {
-          return { id: '1', name: 'Analyst User', role: 'analyst' }; // Return the user object with id as string
+          if (credentials.username === 'moderator') {
+            return { id: '1', name: 'Moderator User', role: 'moderator' }; // Return the user object with id as string
+          }
+          else {
+            return { id: '2', name: 'Analyst User', role: 'analyst' }; // Return the user object with id as string
+          }
         } else {
           return null; // Return null if login fails
         }
