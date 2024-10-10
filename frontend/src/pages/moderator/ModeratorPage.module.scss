@@ -1,0 +1,108 @@
+.container {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.subtitle {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #555;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+.table th,
+.table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+.tableRow:hover {
+    background-color: #f1f1f1;
+}
+
+.noArticles {
+    text-align: center;
+    font-style: italic;
+    color: #888;
+}
+
+.status {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.buttonGroup {
+    display: flex;
+    gap: 10px;
+}
+
+.approveButton,
+.rejectButton {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.approveButton {
+    background-color: #4caf50;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.approveButton:hover {
+    background-color: #45a049;
+}
+
+.rejectButton {
+    background-color: #f44336;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.rejectButton:hover {
+    background-color: #e41b1b;
+}
+
+.loading {
+    font-size: 1.5rem;
+    text-align: center;
+    margin-top: 2rem;
+    color: #555;
+}
+
+.statusText {
+    color: #555;
+    font-style: italic;
+}
