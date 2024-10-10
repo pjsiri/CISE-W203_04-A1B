@@ -17,6 +17,11 @@ export class ArticleService {
       return await this.articleModel.find().exec();
   }
 
+  // Fetch articles by status
+  async findByStatus(status: string): Promise<Article[]> {
+    return this.articleModel.find({ status }).exec(); // Filters articles by the given status
+  }
+
   async findOne(id: string): Promise<Article> {
       return await this.articleModel.findById(id).exec();
   }

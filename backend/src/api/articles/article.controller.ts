@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -27,12 +28,21 @@ export class ArticleController {
       return this.articleService.test();
   }
 
-  // Get all articles
+  // Get all articles or filter by status using query params
   @Get('/')
-  async findAll() {
+  async findAll(@Query('status') status?: string) {
+      console.log('Status Query:', status); // Log the query parameter
+  
       try {
-          return this.articleService.findAll();
-      } catch {
+          if (status) {
+              // Log the filtered response
+              console.log(`Fetching articles with status: ${status}`);
+              return await this.articleService.findByStatus(status);
+          } else {
+              console.log('Fetching all articles');
+              return await this.articleService.findAll();
+          }
+      } catch (error) {
           throw new HttpException(
               {
                   status: HttpStatus.NOT_FOUND,

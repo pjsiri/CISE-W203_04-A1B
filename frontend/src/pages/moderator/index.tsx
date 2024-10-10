@@ -2,15 +2,16 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import formStyles from "./ModeratorPage.module.scss"; // We'll create this CSS module
 
 interface Article {
-    id: number;
+    _id: number;
     title: string;
-    authors: string[];
-    journal: string;
-    pubYear: number;
-    volume: number;
-    number: number;
+    authors: string;
+    source: string;
+    pubYear: string;
+    volume: string;
+    number: string;
     pages: string;
     doi: string;
     status: string; // 'pending_moderation', 'approved', 'rejected'
@@ -38,10 +39,9 @@ const ModeratorPage = () => {
     useEffect(() => {
         const fetchPendingArticles = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/article?status=pending_moderation`);
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?status=pending_moderation`);
                 const data = await response.json();
-
-                // Check if the response is an array
+        
                 if (Array.isArray(data)) {
                     setArticles(data);
                 } else {
@@ -63,7 +63,7 @@ const ModeratorPage = () => {
             // Update the local state after the status is changed successfully
             setArticles(
                 articles.map((article) =>
-                    article.id === id ? { ...article, status: newStatus } : article
+                    article._id === id ? { ...article, status: newStatus } : article
                 )
             );
         } catch (error) {
@@ -80,14 +80,14 @@ const ModeratorPage = () => {
     };
 
     if (loading) {
-        return <div>Loading...</div>; // Display a loading indicator while checking authentication
+        return <div className={formStyles.loading}>Loading...</div>; // Display a loading indicator while checking authentication
     }
 
     return (
-        <div className="container">
-            <h1>Moderator Page</h1>
-            <h2>Submitted Articles</h2>
-            <table>
+        <div className={formStyles.container}>
+            <h1 className={formStyles.title}>Moderator Dashboard</h1>
+            <h2 className={formStyles.subtitle}>Articles Pending Moderation</h2>
+            <table className={formStyles.table}>
                 <thead>
                     <tr>
                         <th>Title</th>
@@ -102,38 +102,41 @@ const ModeratorPage = () => {
                 <tbody>
                     {articles.length === 0 ? (
                         <tr>
-                            <td colSpan={7}>No articles pending moderation</td>
+                            <td colSpan={7} className={formStyles.noArticles}>
+                                No articles pending moderation
+                            </td>
                         </tr>
                     ) : (
                         articles.map((article) => (
-                            <tr key={article.id}>
+                            <tr key={article._id} className={formStyles.tableRow}>
                                 <td>{article.title}</td>
-                                <td>{article.authors.join(", ")}</td>
-                                <td>{article.journal}</td>
+                                <td>{article.authors}</td>
+                                <td>{article.source}</td>
                                 <td>{article.pubYear}</td>
                                 <td>{article.doi}</td>
-                                <td>
-                                    {/* Display user-friendly status */}
+                                <td className={formStyles.status}>
                                     {article.status.replace("_", " ").toUpperCase()}
                                 </td>
-                                <td>
-                                    {article.status === "pending_moderation" && (
-                                        <>
+                                <td className={formStyles.actions}>
+                                    {article.status === "pending_moderation" ? (
+                                        <div className={formStyles.buttonGroup}>
                                             <button
-                                                onClick={() => approveArticle(article.id)}
+                                                className={formStyles.approveButton}
+                                                onClick={() => approveArticle(article._id)}
                                             >
                                                 Approve
                                             </button>
                                             <button
-                                                onClick={() => rejectArticle(article.id)}
-                                                style={{ marginLeft: "1rem" }}
+                                                className={formStyles.rejectButton}
+                                                onClick={() => rejectArticle(article._id)}
                                             >
                                                 Reject
                                             </button>
-                                        </>
-                                    )}
-                                    {article.status !== "pending_moderation" && (
-                                        <span>{article.status.replace("_", " ").toUpperCase()}</span>
+                                        </div>
+                                    ) : (
+                                        <span className={formStyles.statusText}>
+                                            {article.status.replace("_", " ").toUpperCase()}
+                                        </span>
                                     )}
                                 </td>
                             </tr>
