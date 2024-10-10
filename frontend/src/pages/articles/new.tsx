@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import axios from 'axios';
 import formStyles from "../../styles/Form.module.scss";
 
 const NewDiscussion = () => {
@@ -10,26 +11,33 @@ const NewDiscussion = () => {
     const [number, setNumber] = useState<number>(0);
     const [pages, setPages] = useState("");
     const [doi, setDoi] = useState("");
-    const [summary, setSummary] = useState("");
-    const [linkedDiscussion, setLinkedDiscussion] = useState("");
 
     const submitNewArticle = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        console.log(
-            JSON.stringify({
-                title,
-                authors,
-                source,
-                publication_year: pubYear,
-                volume,
-                number,
-                pages,
-                doi,
-                summary,
-                linked_discussion: linkedDiscussion,
-            })
-        );
+        // Join the authors array into a single string, separated by commas
+        const authorsString = authors.join(", ");
+
+        const newArticle = {
+            title,
+            authors: authorsString, // Convert the authors array to a string
+            source,
+            publication_year: pubYear,
+            volume,
+            number,
+            pages,
+            doi,
+            summary: "",
+            status: "pending_moderation"
+        };
+
+        try {
+            // Send data to the backend API
+            const response = await axios.post('http://localhost:8082/articles', newArticle);
+            console.log('Article saved:', response.data);
+        } catch (error) {
+            console.error('Error saving article:', error);
+        }
     };
 
     // Some helper methods for the authors array
@@ -164,14 +172,6 @@ const NewDiscussion = () => {
                     id="doi"
                     value={doi}
                     onChange={(event) => setDoi(event.target.value)}
-                />
-
-                <label htmlFor="summary">Summary:</label>
-                <textarea
-                    className={formStyles.formTextArea}
-                    name="summary"
-                    value={summary}
-                    onChange={(event) => setSummary(event.target.value)}
                 />
 
                 <button className={formStyles.formItem} type="submit">

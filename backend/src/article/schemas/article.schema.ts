@@ -5,7 +5,10 @@ export const ArticleSchema = new Schema({
   authors: String,
   source: String,
   pubYear: Number,
+  volume: Number,
+  number: Number,
+  pages: String,
   doi: String,
-  claim: String,
-  evidence: String,
+  summary: String,
+  status: String,
 });
