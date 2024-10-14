@@ -44,3 +44,4 @@ backend/.env
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+frontend/.env

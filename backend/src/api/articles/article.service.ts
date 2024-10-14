@@ -38,4 +38,15 @@ export class ArticleService {
       const deletedArticle = await this.articleModel.findByIdAndDelete(id).exec();
       return deletedArticle;
   }
+
+  async getDistinctSeMethods(): Promise<string[]> {
+    try {
+      const seMethods = await this.articleModel.distinct('seMethod', { seMethod: { $ne: "" } }).exec();
+      console.log('Fetched SE Methods:', seMethods); // Add logging
+      return seMethods;
+    } catch (error) {
+      console.error('Error fetching distinct SE Methods:', error); // Add error logging
+      throw new Error('Error fetching SE Methods: ' + error.message);
+    }
+  }
 }

@@ -126,4 +126,21 @@ export class ArticleController {
           );
       }
   }
+
+  @Get('distinct-se-methods')
+  async getDistinctSeMethods() {
+    try {
+      return await this.articleService.getDistinctSeMethods();
+    } catch (error) {
+      console.error('Error in getDistinctSeMethods controller:', error); // Add error logging
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Internal server error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        { cause: error },
+      );
+    }
+  }
 }

@@ -17,7 +17,7 @@ export const DefaultEmptyArticle: Article = {
     title: '',
     authors: '',
     source: '',
-    pubYear: 'yyyy',
+    pubYear: '',
     volume: '',
     number: '',
     pages: '',
