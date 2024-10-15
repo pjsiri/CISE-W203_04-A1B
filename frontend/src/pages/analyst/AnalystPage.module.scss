@@ -109,3 +109,29 @@
     color: #4CAF50;
     padding: 20px;
 }
+
+// Success message styling
+.successMessage {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #4CAF50; /* Success green */
+    color: white;
+    text-align: center;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+// Add a simple fade-in effect for the success message
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
