@@ -7,6 +7,7 @@ export class CreateArticleDto {
     number: string;
     pages: string;
     doi: string;
+    seMethod: string;
     summary: string;
     status: string;
     seMethod: string = "";

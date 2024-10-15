@@ -10,36 +10,41 @@ export default NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       authorize: async (credentials) => {
-        // Add logic to verify the credentials from database later
-        // For testing, a user is hard-coded.
-        const validUser = credentials && (credentials.username === 'analyst' || credentials.username === 'moderator') && credentials.password === '123';
+        const validUser =
+          credentials &&
+          (credentials.username === 'analyst' ||
+            credentials.username === 'admin' ||
+            credentials.username === 'moderator') &&
+          credentials.password === '123';
+
         if (validUser) {
-          if (credentials.username === 'moderator') {
-            return { id: '1', name: 'Moderator User', role: 'moderator' }; // Return the user object with id as string
-          }
-          else {
-            return { id: '2', name: 'Analyst User', role: 'analyst' }; // Return the user object with id as string
-          }
+          // Return the user object with id, name, and role (no email)
+          const user = {
+            id: credentials.username === 'moderator' ? '1' : credentials.username === 'analyst' ? '2' : '3',
+            name: `${credentials.username.charAt(0).toUpperCase() + credentials.username.slice(1)} User`,
+            role: credentials.username, // Store role as moderator, analyst, or submitter
+          };
+          return user; // Return user object
         } else {
-          return null; // Return null if login fails
+          return null; // Authentication failed
         }
       },
     }),
   ],
   pages: {
-    signIn: '/auth/signin', // Custom sign-in page
+    signIn: '/auth/signin',
   },
   session: {
     strategy: 'jwt',
   },
   callbacks: {
     async session({ session, token }) {
-      session.user = token.user as typeof session.user; // Assign token's user to the session
+      session.user = token.user as typeof session.user; // Store token's user in the session
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
-        token.user = user;
+        token.user = user; // Store user in token for persistence
       }
       return token;
     },

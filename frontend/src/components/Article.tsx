@@ -8,6 +8,7 @@ export type Article = {
     number?: string;
     pages?: string;
     doi?: string;
+    seMethod?: string;
     summary?: string;
     status?: string;
 };
@@ -22,6 +23,7 @@ export const DefaultEmptyArticle: Article = {
     number: '',
     pages: '',
     doi: '',
+    seMethod: '',
     summary: '',
     status: 'pending_moderation',
 }    

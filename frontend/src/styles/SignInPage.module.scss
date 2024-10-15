@@ -1,0 +1,49 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    background-color: #f0f4f8;
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 40px;
+  }
+  
+  .error {
+    color: red;
+    margin-bottom: 15px;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px; /* Add some space between the buttons */
+    width: 100%; /* Ensure the buttons stretch across the width */
+    max-width: 600px; /* Limit the container width */
+  }
+  
+  .roleButton {
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 8px;
+    flex-grow: 1; /* Make buttons fill the available space */
+    transition: background-color 0.3s ease;
+  
+    &:hover {
+      background-color: #005bb5;
+    }
+  
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 112, 243, 0.5);
+    }
+  }  
