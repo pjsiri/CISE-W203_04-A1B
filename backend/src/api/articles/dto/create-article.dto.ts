@@ -2,12 +2,13 @@ export class CreateArticleDto {
     title: string;
     authors: string;
     source: string;
-    pubYear: string;
+    pubYear: number;
     volume: string;
     number: string;
     pages: string;
     doi: string;
-    seMethod: string;
+    seMethod: string = "";
     summary: string;
     status: string;
+    averageRating: number = 0;
 }  
