@@ -14,6 +14,8 @@ interface Article {
   number: string;
   pages: string;
   doi: string;
+  seMethod: string;
+  summary: string;
   status: string;
 }
 
@@ -127,112 +129,148 @@ const AdminPage = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className={formStyles.loading}>Loading...</div>;
   }
 
   return (
     <div className={formStyles.adminContainer}>
-      <h1>Admin Dashboard</h1>
+      <h1 className={formStyles.title}>Admin Dashboard</h1>
 
       {/* Form for Adding or Editing an Article */}
       <div className={formStyles.formContainer}>
         <h2>{formMode === "edit" ? "Edit Article" : "Add New Article"}</h2>
         <form className={formStyles.form} onSubmit={handleSubmit}>
-          <label className={formStyles.label}>
-            Title:
-            <input
-              className={formStyles.input}
-              type="text"
-              name="title"
-              value={selectedArticle?.title || ""}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+          <div className={formStyles.inputGroup}>
+            <label className={formStyles.label}>
+              Title:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="title"
+                value={selectedArticle?.title || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
 
-          <label className={formStyles.label}>
-            Authors:
-            <input
-              className={formStyles.input}
-              type="text"
-              name="authors"
-              value={selectedArticle?.authors || ""}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+            <label className={formStyles.label}>
+              Authors:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="authors"
+                value={selectedArticle?.authors || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
+          </div>
 
-          <label className={formStyles.label}>
-            Journal:
-            <input
-              className={formStyles.input}
-              type="text"
-              name="journal"
-              value={selectedArticle?.source || ""}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+          <div className={formStyles.inputGroup}>
+            <label className={formStyles.label}>
+              Journal:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="journal"
+                value={selectedArticle?.source || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
 
-          <label className={formStyles.label}>
-            Publication Year:
-            <input
-              className={formStyles.input}
-              type="text"
-              name="pubYear"
-              value={selectedArticle?.pubYear || ""}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+            <label className={formStyles.label}>
+              Publication Year:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="pubYear"
+                value={selectedArticle?.pubYear || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
+          </div>
 
-          <label className={formStyles.label}>
-            Volume:
-            <input
-              className={formStyles.input}
-              type="text"
-              name="volume"
-              value={selectedArticle?.volume || ""}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+          <div className={formStyles.inputGroup}>
+            <label className={formStyles.label}>
+              Volume:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="volume"
+                value={selectedArticle?.volume || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
 
-          <label className={formStyles.label}>
-            Number:
-            <input
-              className={formStyles.input}
-              type="text"
-              name="number"
-              value={selectedArticle?.number || ""}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+            <label className={formStyles.label}>
+              Number:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="number"
+                value={selectedArticle?.number || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
+          </div>
 
-          <label className={formStyles.label}>
-            Pages:
-            <input
-              className={formStyles.input}
-              type="text"
-              name="pages"
-              value={selectedArticle?.pages || ""}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+          <div className={formStyles.inputGroup}>
+            <label className={formStyles.label}>
+              Pages:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="pages"
+                value={selectedArticle?.pages || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
 
-          <label className={formStyles.label}>
-            DOI:
-            <input
-              className={formStyles.input}
-              type="text"
-              name="doi"
-              value={selectedArticle?.doi || ""}
-              onChange={handleInputChange}
-              required
-            />
-          </label>
+            <label className={formStyles.label}>
+              DOI:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="doi"
+                value={selectedArticle?.doi || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
+          </div>
+
+          
+          <div className={formStyles.inputGroup}>
+            <label className={formStyles.label}>
+              SE Method:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="seMethod"
+                value={selectedArticle?.seMethod || ""}
+                onChange={handleInputChange}
+                required
+              />
+            </label>
+          </div>
+
+          <div className={formStyles.inputGroup}>
+            <label className={formStyles.label}>
+              Summary:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="summary"
+                value={selectedArticle?.summary || ""}
+                onChange={handleInputChange}
+              />
+            </label>
+          </div>
 
           <label className={formStyles.label}>
             Status:
@@ -253,7 +291,6 @@ const AdminPage = () => {
             {formMode === "edit" ? "Update Article" : "Add Article"}
           </button>
         </form>
-
         {formMode === "edit" && (
           <button className={formStyles.clearButton} onClick={clearForm}>
             Clear Form
