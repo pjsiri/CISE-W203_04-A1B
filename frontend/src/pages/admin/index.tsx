@@ -2,26 +2,12 @@ import { useState, useEffect } from "react";
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import axios from "axios";
+import { Article, DefaultEmptyArticle } from "@/components/Article";
 import formStyles from "./AdminPage.module.scss";
-
-interface Article {
-  _id: string;
-  title: string;
-  authors: string;
-  source: string;
-  pubYear: string;
-  volume: string;
-  number: string;
-  pages: string;
-  doi: string;
-  seMethod: string;
-  summary: string;
-  status: string;
-}
 
 const AdminPage = () => {
   const [articles, setArticles] = useState<Article[]>([]);
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(DefaultEmptyArticle);
   const [loading, setLoading] = useState(true);
   const [formMode, setFormMode] = useState<"add" | "edit">("add");
   const router = useRouter();
@@ -63,7 +49,7 @@ const AdminPage = () => {
 
   // Clear the form
   const clearForm = () => {
-    setSelectedArticle(null);
+    setSelectedArticle(DefaultEmptyArticle);
     setFormMode("add");
   };
 
@@ -83,31 +69,31 @@ const AdminPage = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (selectedArticle) {
-      // Update the article
+    if (formMode === "edit" && selectedArticle) {
+      // Handle update logic
       try {
         await axios.put(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${selectedArticle._id}`,
           selectedArticle
         );
-        clearForm();
-        fetchArticles();
       } catch (error) {
         console.error("Error updating article:", error);
       }
     } else {
-      // Add a new article
+      // Handle add logic
       try {
         await axios.post(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`,
           selectedArticle
         );
-        clearForm();
-        fetchArticles();
       } catch (error) {
         console.error("Error adding article:", error);
       }
     }
+
+    // Reset form and fetch articles after submission
+    setSelectedArticle(DefaultEmptyArticle);
+    fetchArticles();
   };
 
   const handleInputChange = (
@@ -172,7 +158,7 @@ const AdminPage = () => {
               <input
                 className={formStyles.input}
                 type="text"
-                name="journal"
+                name="source"
                 value={selectedArticle?.source || ""}
                 onChange={handleInputChange}
                 required
@@ -329,7 +315,13 @@ const AdminPage = () => {
                   </button>
                   <button
                     className={formStyles.actionButton}
-                    onClick={() => deleteArticle(article._id)}
+                    onClick={() => {
+                        if (article._id) {
+                          deleteArticle(article._id);
+                        } else {
+                          console.error("Article ID is undefined");
+                        }
+                      }}
                   >
                     Delete
                   </button>
