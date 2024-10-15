@@ -1,61 +1,48 @@
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
+import styles from '../../styles/SignInPage.module.scss'
 
 const SignInPage = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const router = useRouter(); // Initialize the router
+  const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRoleSignIn = async (role: string) => {
     const result = await signIn('credentials', {
       redirect: false,
-      username,
-      password,
+      username: role,
+      password: '123',  // Default password
     });
 
     if (result?.error) {
-      setError('Invalid username or password');
+      setError('Sign in failed');
     } else {
-      if (username === 'analyst') {
-        router.push('/analyst'); // Use router.push() instead of window.location.href
-      } else if (username === 'moderator') {
-        router.push('/moderator'); // Use router.push() instead of window.location.href
+      if (role === 'analyst') {
+        router.push('/analyst');
+      } else if (role === 'moderator') {
+        router.push('/moderator');
+      } else if (role === 'submitter') {
+        router.push('/articles');
       }
     }
   };
 
   return (
-    <div>
-      <h1>Sign In</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Username:
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            Password:
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
-        </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        <button type="submit">Sign In</button>
-      </form>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Sign In</h1>
+      {error && <p className={styles.error}>{error}</p>}
+      
+      <div className={styles.buttonContainer}>
+        <button className={styles.roleButton} onClick={() => handleRoleSignIn('moderator')}>
+          Sign in as Moderator
+        </button>
+        <button className={styles.roleButton} onClick={() => handleRoleSignIn('analyst')}>
+          Sign in as Analyst
+        </button>
+        <button className={styles.roleButton} onClick={() => handleRoleSignIn('submitter')}>
+          Sign in as Submitter
+        </button>
+      </div>
     </div>
   );
 };
