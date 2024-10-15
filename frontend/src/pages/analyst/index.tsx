@@ -1,8 +1,8 @@
-import React, { useState, useEffect, FormEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import formStyles from "./AnalystPage.module.scss";
-// import axios from 'axios';
+import axios from 'axios';
 
 interface Article {
   _id: number;
@@ -14,13 +14,14 @@ interface Article {
   number: string;
   pages: string;
   doi: string;
-  analysis: string; // This field will hold the analyst's input.
+  summary: string; // This field holds the summary/analysis from the analyst
 }
 
 const AnalystPage = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
-  const [analysis, setAnalysis] = useState(''); // Store the current analysis
+  const [summaries, setSummaries] = useState<{ [key: number]: string }>({}); // Track summaries for each article
+  const [selectedArticleId, setSelectedArticleId] = useState<number | null>(null); // Track selected article ID
   const router = useRouter();
 
   // Check if the user is authenticated
@@ -59,13 +60,19 @@ const AnalystPage = () => {
   }, [loading]);
 
   const submitAnalysis = async (id: number) => {
-      try {
-          await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}/analysis`, { analysis });
-          // Clear the analysis input after submitting
-          setAnalysis('');
-      } catch (error) {
-          console.error(`Error submitting analysis for article ID ${id}:`, error);
-      }
+    try {
+        const summary = summaries[id]; // Get the summary for the specific article
+        await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}/summary`, { summary }); // Use the new endpoint
+        // Clear the analysis input after submitting
+        setSummaries((prev) => ({ ...prev, [id]: '' })); // Clear the submitted summary
+        setSelectedArticleId(null); // Deselect the article after submission
+    } catch (error) {
+        console.error(`Error submitting summary for article ID ${id}:`, error);
+    }
+  };
+
+  const handleSummaryChange = (id: number, value: string) => {
+    setSummaries((prev) => ({ ...prev, [id]: value })); // Update the specific article's summary
   };
 
   if (loading) {
@@ -105,8 +112,8 @@ const AnalystPage = () => {
                               <td>{article.doi}</td>
                               <td>
                                   <textarea
-                                      value={analysis}
-                                      onChange={(e) => setAnalysis(e.target.value)}
+                                      value={summaries[article._id] || ''} // Use individual summaries for each article
+                                      onChange={(e) => handleSummaryChange(article._id, e.target.value)} // Update specific article summary
                                       placeholder="Enter your analysis here"
                                       className={formStyles.analysisInput}
                                   />
@@ -115,6 +122,7 @@ const AnalystPage = () => {
                                   <button
                                       className={formStyles.submitButton}
                                       onClick={() => submitAnalysis(article._id)}
+                                      disabled={!summaries[article._id]?.trim()} // Disable button if summary is empty
                                   >
                                       Submit Analysis
                                   </button>

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 // import { Article } from './interfaces/article.interface';
@@ -37,5 +37,14 @@ export class ArticleService {
   async delete(id: string) {
       const deletedArticle = await this.articleModel.findByIdAndDelete(id).exec();
       return deletedArticle;
+  }
+
+  async updateSummary(id: string, updateData: { summary: string }): Promise<Article> {
+    const article = await this.articleModel.findById(id);
+    if (!article) {
+        throw new NotFoundException('Article not found');
+    }
+    article.summary = updateData.summary; // Update the summary field
+    return article.save(); // Save the updated article
   }
 }

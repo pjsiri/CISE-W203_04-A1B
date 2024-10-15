@@ -126,4 +126,22 @@ export class ArticleController {
           );
       }
   }
+
+  // Update an article's summary (analysis)
+@Put('/:id/summary')
+async updateArticleSummary(@Param('id') id: string, @Body() updateData: { summary: string }) {
+    try {
+        await this.articleService.updateSummary(id, updateData); // Call the service method
+        return { message: 'Article summary updated successfully' };
+    } catch (error) {
+        throw new HttpException(
+            {
+                status: HttpStatus.BAD_REQUEST,
+                error: 'Unable to update the summary',
+            },
+            HttpStatus.BAD_REQUEST,
+            { cause: error },
+        );
+    }
+}
 }
