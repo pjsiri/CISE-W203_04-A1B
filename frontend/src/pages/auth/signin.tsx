@@ -21,8 +21,8 @@ const SignInPage = () => {
         router.push('/analyst');
       } else if (role === 'moderator') {
         router.push('/moderator');
-      } else if (role === 'submitter') {
-        router.push('/articles');
+      } else if (role === 'admin') {
+        router.push('/admin');
       }
     }
   };
@@ -39,8 +39,8 @@ const SignInPage = () => {
         <button className={styles.roleButton} onClick={() => handleRoleSignIn('analyst')}>
           Sign in as Analyst
         </button>
-        <button className={styles.roleButton} onClick={() => handleRoleSignIn('submitter')}>
-          Sign in as Submitter
+        <button className={styles.roleButton} onClick={() => handleRoleSignIn('admin')}>
+          Sign in as Administrator
         </button>
       </div>
     </div>
