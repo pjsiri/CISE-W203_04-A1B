@@ -15,7 +15,7 @@ export class Article {
     @Prop({ required: true })
     source: string;
 
-    @Prop({ required: true })
+    @Prop({ required: true, type: Number }) // Changed to number
     pubYear: number; // Changed to number
 
     @Prop()
