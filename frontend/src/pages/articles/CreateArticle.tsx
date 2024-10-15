@@ -39,8 +39,9 @@ const CreateArticle = () => {
     return (
         <div className="container">
             <h1>New Article</h1>
+            <h3>Fields marked * are required</h3>
             <form className={formStyles.form} onSubmit={submitNewArticle}>
-                <label htmlFor="title">Title:</label>
+                <label htmlFor="title">* Title:</label>
                 <input
                     className={formStyles.formItem}
                     type="text"
@@ -50,7 +51,7 @@ const CreateArticle = () => {
                     onChange={onChange}
                 />
 
-                <label htmlFor="authors">Authors:</label>
+                <label htmlFor="authors">* Authors:</label>
                 <input
                     className={formStyles.formItem}
                     type="text"
@@ -61,7 +62,7 @@ const CreateArticle = () => {
                     placeholder="Enter authors separated by commas"
                 />
 
-                <label htmlFor="source">Source:</label>
+                <label htmlFor="source">* Source:</label>
                 <input
                     className={formStyles.formItem}
                     type="text"
@@ -71,10 +72,10 @@ const CreateArticle = () => {
                     onChange={onChange}
                 />
 
-                <label htmlFor="pubYear">Publication Year:</label>
+                <label htmlFor="pubYear">* Publication Year:</label>
                 <input
                     className={formStyles.formItem}
-                    type="text"
+                    type="number"
                     name="pubYear"
                     id="pubYear"
                     value={article.pubYear}
