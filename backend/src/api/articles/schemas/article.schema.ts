@@ -15,8 +15,8 @@ export class Article {
     @Prop({ required: true })
     source: string;
 
-    @Prop()
-    pubYear: string;
+    @Prop({ required: true, type: Number })
+    pubYear: number;
 
     @Prop()
     volume: string;
@@ -30,7 +30,7 @@ export class Article {
     @Prop()
     doi: string;
 
-    @Prop()
+    @Prop({ default: "" })
     seMethod: string;
 
     @Prop()
@@ -38,6 +38,9 @@ export class Article {
 
     @Prop()
     status: string;
+
+    @Prop({ default: 0 })
+    averageRating: number;
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);

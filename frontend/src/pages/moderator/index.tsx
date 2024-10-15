@@ -2,24 +2,28 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import formStyles from "./ModeratorPage.module.scss"; // We'll create this CSS module
+import formStyles from "./ModeratorPage.module.scss";
 
 interface Article {
     _id: number;
     title: string;
     authors: string;
     source: string;
-    pubYear: string;
+    pubYear: number;
     volume: string;
     number: string;
     pages: string;
     doi: string;
     status: string; // 'pending_moderation', 'approved', 'rejected'
+    seMethod: string;
 }
 
 const ModeratorPage = () => {
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
+    const [seMethods, setSeMethods] = useState<string[]>([]);
+    const [selectedSeMethod, setSelectedSeMethod] = useState<string>("");
+    const [newSeMethod, setNewSeMethod] = useState<string>("");
     const router = useRouter();
 
     // Check if the user is authenticated
@@ -57,13 +61,34 @@ const ModeratorPage = () => {
         }
     }, [loading]);
 
-    const updateArticleStatus = async (id: number, newStatus: string) => {
+    // Fetch distinct SE Methods from the backend API
+    useEffect(() => {
+        const fetchSeMethods = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/distinct-se-methods`);
+                const data = await response.json();
+
+                if (Array.isArray(data)) {
+                    setSeMethods(data);
+                } else {
+                    console.error("Expected an array of SE Methods, but got:", data);
+                }
+            } catch (err) {
+                console.error('Error fetching SE Methods:', err);
+                alert('Failed to fetch SE Methods. Please try again later.');
+            }
+        };
+
+        fetchSeMethods();
+    }, []);
+
+    const updateArticleStatusAndSeMethod = async (id: number, newStatus: string, seMethod: string) => {
         try {
-            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { status: newStatus });
+            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { status: newStatus, seMethod });
             // Update the local state after the status is changed successfully
             setArticles(
                 articles.map((article) =>
-                    article._id === id ? { ...article, status: newStatus } : article
+                    article._id === id ? { ...article, status: newStatus, seMethod } : article
                 )
             );
         } catch (error) {
@@ -72,11 +97,16 @@ const ModeratorPage = () => {
     };
 
     const approveArticle = (id: number) => {
-        updateArticleStatus(id, "approved");
+        const seMethod = newSeMethod || selectedSeMethod;
+        if (!seMethod) {
+            alert("Please select or enter an SE Method.");
+            return;
+        }
+        updateArticleStatusAndSeMethod(id, "approved", seMethod);
     };
 
     const rejectArticle = (id: number) => {
-        updateArticleStatus(id, "rejected");
+        updateArticleStatusAndSeMethod(id, "rejected", "");    
     };
 
     if (loading) {
@@ -120,6 +150,25 @@ const ModeratorPage = () => {
                                 <td className={formStyles.actions}>
                                     {article.status === "pending_moderation" ? (
                                         <div className={formStyles.buttonGroup}>
+                                            <select
+                                                value={selectedSeMethod}
+                                                onChange={(e) => setSelectedSeMethod(e.target.value)}
+                                                className={formStyles.formItem}
+                                            >
+                                                <option value="">Select SE Method</option>
+                                                {seMethods.map((method) => (
+                                                    <option key={method} value={method}>
+                                                        {method}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <input
+                                                type="text"
+                                                placeholder="Or enter new SE Method"
+                                                value={newSeMethod}
+                                                onChange={(e) => setNewSeMethod(e.target.value)}
+                                                className={formStyles.formItem}
+                                            />
                                             <button
                                                 className={formStyles.approveButton}
                                                 onClick={() => approveArticle(article._id)}

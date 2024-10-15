@@ -47,4 +47,37 @@ export class ArticleService {
     article.summary = updateData.summary; // Update the summary field
     return article.save(); // Save the updated article
   }
+
+  async getDistinctSeMethods(): Promise<string[]> {
+    try {
+      const seMethods = await this.articleModel.distinct('seMethod', { seMethod: { $ne: "" } }).exec();
+      console.log('Fetched SE Methods:', seMethods);
+      return seMethods;
+    } catch (error) {
+      console.error('Error fetching distinct SE Methods:', error); // Error logging
+      throw new Error('Error fetching SE Methods: ' + error.message);
+    }
+  }
+
+  async searchArticles(method: string, startYear: number, endYear: number): Promise<Article[]> {
+    try {
+      const query: any = {
+        seMethod: method,
+      };
+
+      if (startYear) {
+        query.pubYear = { ...query.pubYear, $gte: startYear };
+      }
+
+      if (endYear) {
+        query.pubYear = { ...query.pubYear, $lte: endYear };
+      }
+
+      console.log('Search query:', query); // Add logging to verify the query
+      return await this.articleModel.find(query).exec();
+    } catch (error) {
+      console.error('Error searching articles:', error); // Add error logging
+      throw new Error('Internal server error');
+    }
+  }
 }

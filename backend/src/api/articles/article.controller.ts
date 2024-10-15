@@ -54,6 +54,48 @@ export class ArticleController {
       }
   }
 
+    // Get distinct SE Methods for the dropdown list
+    @Get('distinct-se-methods')
+    async getDistinctSeMethods() {
+    try {
+        return await this.articleService.getDistinctSeMethods();
+    } catch (error) {
+        console.error('Error in getDistinctSeMethods controller:', error); // error logging
+        throw new HttpException(
+        {
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            error: 'Internal server error',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        { cause: error },
+        );
+    }
+    }
+
+    // Search articles by SE method and year range
+    @Get('search')
+    async searchArticles(
+        @Query('method') method: string,
+        @Query('startYear') startYear: string,
+        @Query('endYear') endYear: string,
+    ) {
+        try {
+        const startYearNum = startYear ? parseInt(startYear, 10) : undefined;
+        const endYearNum = endYear ? parseInt(endYear, 10) : undefined;
+        return await this.articleService.searchArticles(method, startYearNum, endYearNum);
+        } catch (error) {
+        console.error('Error in searchArticles controller:', error); // Add error logging
+        throw new HttpException(
+            {
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            error: 'Internal server error',
+            },
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            { cause: error },
+        );
+        }
+    }
+
   // Get one article via id
   @Get('/:id')
   async findOne(@Param('id') id: string) {
