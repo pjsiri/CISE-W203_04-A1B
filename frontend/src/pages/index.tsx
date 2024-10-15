@@ -5,7 +5,7 @@ export default function Home() {
     return (
         <div className={styles.container}>
             <h1 className={styles.title}>Software Practice Empirical Evidence Database (SPEED)</h1>
-            <a href="https://emoji.gg/emoji/28649-pepecry2">
+            <a href="">
                 <img
                     src="https://cdn3.emoji.gg/emojis/28649-pepecry2.png"
                     width="64px"

@@ -1,85 +1,153 @@
-import React, { useState, useEffect, FormEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import formStyles from "../../styles/Form.module.scss";
-// import axios from 'axios';
+import formStyles from './AnalystPage.module.scss';
+import axios from 'axios';
 
-const AnalystForm = () => {
-  // const [title, setTitle] = useState("");
-  // const [authors, setAuthors] = useState<string[]>([]);
-  // const [source, setSource] = useState("");
-  // const [pubYear, setPubYear] = useState<number>(0);
-  // const [volume, setVolume] = useState<number>(0);
-  // const [number, setNumber] = useState<number>(0);
-  // const [pages, setPages] = useState("");
-  // const [doi, setDoi] = useState("");
-  const [summary, setSummary] = useState("");
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  // Check if the user is authenticated
-  useEffect(() => {
-    const securePage = async () => {
-      const session = await getSession();
-      if (!session) {
-        // If the user is not authenticated, redirect to sign-in page
-        router.push('/auth/signin');
-      } else {
-        setLoading(false); // Allow access if the user is authenticated
-      }
-    };
-    securePage();
-  }, [router]);
-
-  // Handle form submission to the backend
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    // const newArticle = {
-    //   title,
-    //   authors,
-    //   source,
-    //   publication_year: pubYear,
-    //   volume,
-    //   number,
-    //   pages,
-    //   doi,
-    //   summary,
-    // };
-
-    // try {
-    //   // Send data to the backend API
-    //   const response = await axios.post('http://localhost:8082/articles', newArticle);
-    //   console.log('Article saved:', response.data);
-    // } catch (error) {
-    //   console.error('Error saving article:', error);
-    // }
-  };
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
-  return (
-    <div className="container">
-      <h1>Welcome Analyst</h1>
-      <h2>Enter New Article Information</h2>
-
-      <form className={formStyles.form} onSubmit={handleSubmit}>
-      <label htmlFor="summary">Summary:</label>
-      <textarea
-          className={formStyles.formTextArea}
-          name="summary"
-          value={summary}
-          onChange={(event) => setSummary(event.target.value)}
-      />
-
-      <button className={formStyles.formItem} type="submit">
-        Submit
-      </button>
-      </form>
-    </div>
-  );
+interface Article {
+    _id: number;
+    title: string;
+    authors: string;
+    source: string;
+    pubYear: string;
+    volume: string;
+    number: string;
+    pages: string;
+    doi: string;
+    summary: string;
 }
 
-export default AnalystForm;
+const AnalystPage = () => {
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [summaries, setSummaries] = useState<{ [key: number]: string }>({}); 
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const router = useRouter();
+
+    useEffect(() => {
+        const securePage = async () => {
+            const session = await getSession();
+            if (!session) {
+                router.push('/auth/signin');
+            } else {
+                setLoading(false);
+            }
+        };
+        securePage();
+    }, [router]);
+
+    useEffect(() => {
+        const fetchApprovedArticles = async () => {
+            try {
+                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?status=approved`);
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    setArticles(data);
+                } else {
+                    console.error('Expected an array of articles, but got:', data);
+                }
+            } catch (err) {
+                console.error('Error fetching articles:', err);
+            }
+        };
+
+        if (!loading) {
+            fetchApprovedArticles();
+        }
+    }, [loading]);
+
+    const submitAnalysis = async (id: number, newSummary: string) => {
+        try {
+            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { summary: newSummary });
+
+            setArticles(
+                articles.map((article) =>
+                    article._id === id ? { ...article, summary: newSummary } : article
+                )
+            );
+
+            const newSummaries = { ...summaries };
+            delete newSummaries[id];
+            setSummaries(newSummaries);
+
+            // Show success message
+            setShowSuccessMessage(true);
+            setTimeout(() => setShowSuccessMessage(false), 3000);
+        } catch (error) {
+            console.error(`Error submitting summary for article ID ${id}:`, error);
+        }
+    };
+
+    if (loading) {
+        return <div className={formStyles.loading}>Loading...</div>;
+    }
+
+    return (
+        <div className={formStyles.container}>
+            <h1 className={formStyles.title}>Analyst Dashboard</h1>
+            <h2 className={formStyles.subtitle}>Approved Articles Ready for Analysis</h2>
+
+            <table className={formStyles.table}>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Authors</th>
+                        <th>Journal</th>
+                        <th>Year</th>
+                        <th>DOI</th>
+                        <th>Analysis</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {articles.length === 0 ? (
+                        <tr>
+                            <td colSpan={7} className={formStyles.noArticles}>
+                                No articles ready for analysis
+                            </td>
+                        </tr>
+                    ) : (
+                        articles.map((article) => (
+                            <tr key={article._id} className={formStyles.tableRow}>
+                                <td>{article.title}</td>
+                                <td>{article.authors}</td>
+                                <td>{article.source}</td>
+                                <td>{article.pubYear}</td>
+                                <td>{article.doi}</td>
+                                <td>
+                                    <textarea
+                                        value={summaries[article._id] ?? article.summary ?? ''} 
+                                        onChange={(e) => setSummaries({
+                                            ...summaries,
+                                            [article._id]: e.target.value
+                                        })}
+                                        placeholder="Enter your analysis here"
+                                        className={formStyles.analysisInput}
+                                    />
+                                </td>
+                                <td className={formStyles.actions}>
+                                    <button
+                                        className={formStyles.submitButton}
+                                        onClick={() => submitAnalysis(article._id, summaries[article._id] || article.summary || '')}
+                                        disabled={!summaries[article._id]?.trim() && !article.summary?.trim()}
+                                    >
+                                        {article.summary ? 'Edit Analysis' : 'Submit Analysis'}
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    )}
+                </tbody>
+            </table>
+
+            {/* Success message positioned at the bottom */}
+            {showSuccessMessage && (
+                <div className={formStyles.successMessage}>
+                    Analysis submitted successfully!
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default AnalystPage;
