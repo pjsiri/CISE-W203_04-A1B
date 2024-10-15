@@ -1,0 +1,136 @@
+// AdminPage.module.scss
+
+.adminContainer {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #555;
+}
+
+.formContainer {
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #f4f4f4;
+  border-radius: 8px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.inputGroup {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  padding-right: 20px;
+}
+
+.label {
+  margin-bottom: 10px;
+  font-weight: bold;
+  width: 48%;
+}
+
+.input,
+.select {
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #45a049;
+}
+
+.clearButton {
+  background-color: #f44336;
+  margin-top: 10px;
+}
+
+.articlesList {
+  margin-top: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2rem;
+}
+
+.th,
+.td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.tr:hover {
+  background-color: #f1f1f1;
+}
+
+.actionButton {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.approveButton {
+  background-color: #4caf50;
+  color: white;
+  transition: background-color 0.3s;
+}
+
+.approveButton:hover {
+  background-color: #45a049;
+}
+
+.rejectButton {
+  background-color: #f44336;
+  color: white;
+  transition: background-color 0.3s;
+}
+
+.rejectButton:hover {
+  background-color: #e41b1b;
+}
+
+.loading {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-top: 2rem;
+  color: #555;
+}

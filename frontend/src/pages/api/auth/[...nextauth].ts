@@ -13,7 +13,7 @@ export default NextAuth({
         const validUser =
           credentials &&
           (credentials.username === 'analyst' ||
-            credentials.username === 'submitter' ||
+            credentials.username === 'admin' ||
             credentials.username === 'moderator') &&
           credentials.password === '123';
 

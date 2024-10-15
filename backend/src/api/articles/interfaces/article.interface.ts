@@ -9,6 +9,7 @@ export interface Article extends Document {
   readonly number: string;
   readonly pages: string;
   readonly doi: string;
+  readonly seMethod: string;
   readonly summary: string;
   readonly status: string;
 }

@@ -31,6 +31,9 @@ export class Article {
     doi: string;
 
     @Prop()
+    seMethod: string;
+
+    @Prop()
     summary: string;
 
     @Prop()
