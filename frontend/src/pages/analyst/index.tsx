@@ -42,7 +42,13 @@ const AnalystPage = () => {
                 const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?status=approved`);
                 const data = await response.json();
                 if (Array.isArray(data)) {
-                    setArticles(data);
+                    // Sort articles: those with empty summaries (or null) come first
+                    const sortedArticles = data.sort((a, b) => {
+                        const aHasSummary = a.summary?.trim().length > 0;
+                        const bHasSummary = b.summary?.trim().length > 0;
+                        return aHasSummary === bHasSummary ? 0 : aHasSummary ? 1 : -1;
+                    });
+                    setArticles(sortedArticles);
                 } else {
                     console.error('Expected an array of articles, but got:', data);
                 }
@@ -78,6 +84,28 @@ const AnalystPage = () => {
         }
     };
 
+    const removeAnalysis = async (id: number) => {
+        try {
+            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { summary: '' });
+
+            setArticles(
+                articles.map((article) =>
+                    article._id === id ? { ...article, summary: '' } : article
+                )
+            );
+
+            const newSummaries = { ...summaries };
+            delete newSummaries[id];
+            setSummaries(newSummaries);
+
+            // Show success message
+            setShowSuccessMessage(true);
+            setTimeout(() => setShowSuccessMessage(false), 3000);
+        } catch (error) {
+            console.error(`Error removing analysis for article ID ${id}:`, error);
+        }
+    };
+
     if (loading) {
         return <div className={formStyles.loading}>Loading...</div>;
     }
@@ -107,43 +135,56 @@ const AnalystPage = () => {
                             </td>
                         </tr>
                     ) : (
-                        articles.map((article) => (
-                            <tr key={article._id} className={formStyles.tableRow}>
-                                <td>{article.title}</td>
-                                <td>{article.authors}</td>
-                                <td>{article.source}</td>
-                                <td>{article.pubYear}</td>
-                                <td>{article.doi}</td>
-                                <td>
-                                    <textarea
-                                        value={summaries[article._id] ?? article.summary ?? ''} 
-                                        onChange={(e) => setSummaries({
-                                            ...summaries,
-                                            [article._id]: e.target.value
-                                        })}
-                                        placeholder="Enter your analysis here"
-                                        className={formStyles.analysisInput}
-                                    />
-                                </td>
-                                <td className={formStyles.actions}>
-                                    <button
-                                        className={formStyles.submitButton}
-                                        onClick={() => submitAnalysis(article._id, summaries[article._id] || article.summary || '')}
-                                        disabled={!summaries[article._id]?.trim() && !article.summary?.trim()}
-                                    >
-                                        {article.summary ? 'Edit Analysis' : 'Submit Analysis'}
-                                    </button>
-                                </td>
-                            </tr>
-                        ))
+                        articles.map((article) => {
+                            const summaryText = summaries[article._id] ?? article.summary ?? '';
+                            const isEmpty = summaryText.trim() === '';
+                            const hasExistingSummary = !!article.summary?.trim();
+                            
+                            return (
+                                <tr key={article._id} className={formStyles.tableRow}>
+                                    <td>{article.title}</td>
+                                    <td>{article.authors}</td>
+                                    <td>{article.source}</td>
+                                    <td>{article.pubYear}</td>
+                                    <td>{article.doi}</td>
+                                    <td>
+                                        <textarea
+                                            value={summaryText} 
+                                            onChange={(e) => setSummaries({
+                                                ...summaries,
+                                                [article._id]: e.target.value
+                                            })}
+                                            placeholder="Enter your analysis here"
+                                            className={formStyles.analysisInput}
+                                        />
+                                    </td>
+                                    <td className={formStyles.actions}>
+                                        <button
+                                            className={
+                                                isEmpty && hasExistingSummary 
+                                                    ? formStyles.removeButton 
+                                                    : formStyles.submitButton
+                                            }
+                                            onClick={() =>
+                                                isEmpty && hasExistingSummary
+                                                    ? removeAnalysis(article._id)
+                                                    : submitAnalysis(article._id, summaryText)
+                                            }
+                                            disabled={!summaryText.trim() && !hasExistingSummary}
+                                        >
+                                            {isEmpty && hasExistingSummary ? 'Remove Analysis' : hasExistingSummary ? 'Edit Analysis' : 'Submit Analysis'}
+                                        </button>
+                                    </td>
+                                </tr>
+                            );
+                        })
                     )}
                 </tbody>
             </table>
 
-            {/* Success message positioned at the bottom */}
             {showSuccessMessage && (
                 <div className={formStyles.successMessage}>
-                    Analysis submitted successfully!
+                    Analysis updated successfully!
                 </div>
             )}
         </div>
