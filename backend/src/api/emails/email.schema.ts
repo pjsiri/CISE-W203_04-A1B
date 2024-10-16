@@ -11,7 +11,7 @@ export class Email {
     @Prop({ required: true })
     name: string;
 
-    @Prop({ required: true })
+    @Prop()
     email: string;
 }
 
