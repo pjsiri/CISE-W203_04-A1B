@@ -1,12 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Article, DefaultEmptyArticle } from "@/components/Article"; // Import Article and DefaultEmptyArticle
 import submitStyles from "./SubmitArticlePage.module.scss"; // Styling for the form
+import { send, init } from "emailjs-com";
 
 const SubmitArticlePage = () => {
   const [article, setArticle] = useState<Article>(DefaultEmptyArticle);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    init(process.env.NEXT_PUBLIC_EMAILJS_USER_ID!);
+  }, []);
 
   // Handle form input changes
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -15,6 +20,41 @@ const SubmitArticlePage = () => {
       ...prevArticle,
       [name]: value,
     }));
+  };
+
+  // Send email notification to moderators
+  const sendEmailNotification = async (articleTitle: string, articleAuthors: string, submitterName: string, submitterEmail: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/emails?role=moderator`);
+      const moderators = await response.json();
+  
+      if (Array.isArray(moderators)) {
+        // Collect all promises for sending emails
+        const emailPromises = moderators.map(async (moderator: { name: string; email: string }) => {
+          const templateParams = {
+            to_name: moderator.name,
+            to_email: moderator.email,
+            articleTitle: articleTitle,
+            articleAuthors: articleAuthors,
+            submitterName: submitterName,
+            submitterEmail: submitterEmail,
+          };
+  
+          return send(
+            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+            process.env.NEXT_PUBLIC_EMAILJS_MOD_TEMPLATE_ID!,
+            templateParams
+          );
+        });
+  
+        // Wait for all email sending promises to complete
+        await Promise.all(emailPromises);
+      } else {
+        console.error("Expected an array of moderators, but got:", moderators);
+      }
+    } catch (error) {
+      console.error("Failed to fetch moderators or send email:", error);
+    }
   };
 
   // Handle form submission
@@ -26,6 +66,7 @@ const SubmitArticlePage = () => {
     try {
       await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`, article);
       setSuccessMessage("Article submitted successfully!");
+      await sendEmailNotification(article.title!, article.authors!, article.submitterName!, article.submitterEmail!);
       setArticle(DefaultEmptyArticle); // Reset the form after submission
     } catch (error) {
       setErrorMessage("Failed to submit the article. Please try again.");

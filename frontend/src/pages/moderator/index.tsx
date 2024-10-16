@@ -84,7 +84,7 @@ const ModeratorPage = () => {
       articleStatus: articleStatus,
     };
   
-    send(process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!, process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!, templateParams)
+    send(process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!, process.env.NEXT_PUBLIC_EMAILJS_SUB_TEMPLATE_ID!, templateParams)
       .then((response) => {
         console.log('Email sent successfully!', response);
       })
