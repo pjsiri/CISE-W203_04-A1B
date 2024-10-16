@@ -93,7 +93,40 @@ const ModeratorPage = () => {
       });
   };
 
-  const updateArticleStatusAndSeMethod = async (id: string, newStatus: string, seMethod: string, name: string, email: string, articleTitle: string) => {
+  // Send email notification to analysts
+  const sendEmailToAnalysts = async (articleTitle: string, articleAuthors: string, submitterName: string, submitterEmail: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/emails?role=analyst`);
+      const analysts = await response.json();
+
+      if (Array.isArray(analysts)) {
+        analysts.forEach(async (analyst: { name: string; email: string }) => {
+          const templateParams = {
+            subject: "New Article Ready for Analysis",
+            message: "You have a new article waiting for your analysis in the SPEED analysis queue.",
+            to_name: analyst.name,
+            to_email: analyst.email,
+            articleTitle: articleTitle,
+            articleAuthors: articleAuthors,
+            submitterName: submitterName,
+            submitterEmail: submitterEmail,
+          };
+
+          await send(
+            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+            process.env.NEXT_PUBLIC_EMAILJS_M_A_TEMPLATE_ID!,
+            templateParams
+          );
+        });
+      } else {
+        console.error("Expected an array of analysts, but got:", analysts);
+      }
+    } catch (error) {
+      console.error("Failed to fetch analysts or send email:", error);
+    }
+  };
+
+  const updateArticleStatusAndSeMethod = async (id: string, newStatus: string, seMethod: string, article: Article) => {
     try {
       await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { status: newStatus, seMethod });
       // Update the local state after the status is changed successfully
@@ -104,7 +137,11 @@ const ModeratorPage = () => {
       );
 
       // Send email notification to submitter
-      sendEmailNotification(name, email, articleTitle, newStatus);
+      sendEmailNotification(article.submitterName!, article.submitterEmail!, article.title!, newStatus);
+      // If the article is approved, send email to analysts
+      if (newStatus === "approved") {
+        await sendEmailToAnalysts(article.title!, article.authors!, article.submitterName!, article.submitterEmail!);
+      }
     } catch (error) {
       console.error(`Error updating article status to ${newStatus}:`, error);
     }
@@ -117,16 +154,16 @@ const ModeratorPage = () => {
       return;
     }
 
-    if (article._id && article.submitterName && article.submitterEmail && article.title) {
-        updateArticleStatusAndSeMethod(article._id, "approved", seMethod, article.submitterName, article.submitterEmail, article.title);
+    if (article._id) {
+        updateArticleStatusAndSeMethod(article._id, "approved", seMethod, article);
       } else {
         console.error("Article is undefined");
       }
   };
 
   const rejectArticle = (article: Article) => {
-    if (article._id && article.submitterName && article.submitterEmail && article.title) {
-        updateArticleStatusAndSeMethod(article._id, "rejected", "", article.submitterName, article.submitterEmail, article.title);
+    if (article._id) {
+        updateArticleStatusAndSeMethod(article._id, "rejected", "", article);
       } else {
         console.error("Article is undefined");
       }

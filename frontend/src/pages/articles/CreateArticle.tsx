@@ -32,6 +32,8 @@ const SubmitArticlePage = () => {
         // Collect all promises for sending emails
         const emailPromises = moderators.map(async (moderator: { name: string; email: string }) => {
           const templateParams = {
+            subject: "New Article Submitted for Moderation",
+            message: "You have a new article waiting for your review in the SPEED moderation queue.",
             to_name: moderator.name,
             to_email: moderator.email,
             articleTitle: articleTitle,
@@ -42,7 +44,7 @@ const SubmitArticlePage = () => {
   
           return send(
             process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-            process.env.NEXT_PUBLIC_EMAILJS_MOD_TEMPLATE_ID!,
+            process.env.NEXT_PUBLIC_EMAILJS_M_A_TEMPLATE_ID!,
             templateParams
           );
         });
