@@ -1,16 +1,19 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "dist/main.js",
-      "use": "@vercel/node"
-    }
+      {
+          "src": "src/main.ts",
+          "use": "@vercel/node"
+      }
   ],
+  "env": {
+    "DB_URL": "mongodb+srv://bsouthg8:w203_04@cluster0.9mk3x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+  },
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "dist/main.js",
-      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-    }
+      {
+          "src": "/(.*)",
+          "dest": "src/main.ts",
+          "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+      }
   ]
 }
