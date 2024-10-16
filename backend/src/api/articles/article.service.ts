@@ -80,4 +80,17 @@ export class ArticleService {
       throw new Error('Internal server error');
     }
   }
+
+  async updateRating(id: string, rating: number): Promise<Article> {
+    const article = await this.articleModel.findById(id);
+    if (!article) {
+      throw new NotFoundException('Article not found');
+    }
+
+    article.totalRating += rating;
+    article.numberOfRatings += 1;
+    article.averageRating = article.totalRating / article.numberOfRatings;
+
+    return article.save();
+  }
 }

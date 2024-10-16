@@ -96,6 +96,26 @@ export class ArticleController {
         }
     }
 
+    @Put(':id/rate')
+    async rateArticle(
+      @Param('id') id: string,
+      @Body('rating') rating: number,
+    ) {
+      try {
+        return await this.articleService.updateRating(id, rating);
+      } catch (error) {
+        console.error('Error in rateArticle controller:', error);
+        throw new HttpException(
+          {
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            error: 'Internal server error',
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          { cause: error },
+        );
+      }
+    }
+
   // Get one article via id
   @Get('/:id')
   async findOne(@Param('id') id: string) {
