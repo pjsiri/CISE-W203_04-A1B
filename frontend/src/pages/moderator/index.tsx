@@ -3,6 +3,7 @@ import axios from "axios";
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { Article, DefaultEmptyArticle } from "@/components/Article"; // Importing Article and DefaultEmptyArticle
+import { init, send } from 'emailjs-com';
 import formStyles from "./ModeratorPage.module.scss"; // Importing styles
 
 const ModeratorPage = () => {
@@ -12,6 +13,11 @@ const ModeratorPage = () => {
   const [selectedSeMethod, setSelectedSeMethod] = useState<string>("");
   const [newSeMethod, setNewSeMethod] = useState<string>("");
   const router = useRouter();
+
+  // Initialize Email.js
+  useEffect(() => {
+    init(process.env.NEXT_PUBLIC_EMAILJS_USER_ID!); // Add your EmailJS user ID here
+  }, []);
 
   // Check if the user is authenticated
   useEffect(() => {
@@ -69,7 +75,25 @@ const ModeratorPage = () => {
     fetchSeMethods();
   }, []);
 
-  const updateArticleStatusAndSeMethod = async (id: string, newStatus: string, seMethod: string) => {
+  // Send email notification
+  const sendEmailNotification = (name: string, email: string, articleTitle: string, articleStatus: string) => {
+    const templateParams = {
+      to_name: name,
+      to_email: email,
+      articleTitle: articleTitle,
+      articleStatus: articleStatus,
+    };
+  
+    send(process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!, process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!, templateParams)
+      .then((response) => {
+        console.log('Email sent successfully!', response);
+      })
+      .catch((err) => {
+        console.error('Failed to send email:', err);
+      });
+  };
+
+  const updateArticleStatusAndSeMethod = async (id: string, newStatus: string, seMethod: string, name: string, email: string, articleTitle: string) => {
     try {
       await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { status: newStatus, seMethod });
       // Update the local state after the status is changed successfully
@@ -78,22 +102,34 @@ const ModeratorPage = () => {
           article._id === id ? { ...article, status: newStatus, seMethod } : article
         )
       );
+
+      // Send email notification to submitter
+      sendEmailNotification(name, email, articleTitle, newStatus);
     } catch (error) {
       console.error(`Error updating article status to ${newStatus}:`, error);
     }
   };
 
-  const approveArticle = (id: string) => {
+  const approveArticle = (article: Article) => {
     const seMethod = newSeMethod || selectedSeMethod;
     if (!seMethod) {
       alert("Please select or enter an SE Method.");
       return;
     }
-    updateArticleStatusAndSeMethod(id, "approved", seMethod);
+
+    if (article._id && article.submitterName && article.submitterEmail && article.title) {
+        updateArticleStatusAndSeMethod(article._id, "approved", seMethod, article.submitterName, article.submitterEmail, article.title);
+      } else {
+        console.error("Article is undefined");
+      }
   };
 
-  const rejectArticle = (id: string) => {
-    updateArticleStatusAndSeMethod(id, "rejected", "");
+  const rejectArticle = (article: Article) => {
+    if (article._id && article.submitterName && article.submitterEmail && article.title) {
+        updateArticleStatusAndSeMethod(article._id, "rejected", "", article.submitterName, article.submitterEmail, article.title);
+      } else {
+        console.error("Article is undefined");
+      }
   };
 
   if (loading) {
@@ -160,7 +196,7 @@ const ModeratorPage = () => {
                         className={formStyles.approveButton}
                         onClick={() => {
                           if (article._id) {
-                            approveArticle(article._id);
+                            approveArticle(article);
                           } else {
                             console.error("Article ID is undefined");
                           }
@@ -172,7 +208,7 @@ const ModeratorPage = () => {
                         className={formStyles.rejectButton}
                         onClick={() => {
                           if (article._id) {
-                            rejectArticle(article._id);
+                            rejectArticle(article);
                           } else {
                             console.error("Article ID is undefined");
                           }
