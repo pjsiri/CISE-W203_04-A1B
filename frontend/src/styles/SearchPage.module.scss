@@ -1,0 +1,83 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    background-color: #f0f4f8;
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  
+  .formGroup {
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .label {
+    display: block;
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .select,
+  .input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  
+  .button {
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+  
+    &:hover {
+      background-color: #005bb5;
+    }
+  
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 5px rgba(0, 112, 243, 0.5);
+    }
+  }
+  
+  .table {
+    width: 100%;
+    max-width: 1200px;
+    border-collapse: collapse;
+    margin-top: 40px;
+  }
+  
+  .th,
+  .td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .tr:hover {
+    background-color: #f1f1f1;
+  }
