@@ -12,5 +12,7 @@ export interface Article extends Document {
   readonly seMethod: string;
   readonly summary: string;
   readonly status: string;
+  readonly submitterName: string;
+  readonly submitterEmail: string;
   readonly averageRating: number;
 }

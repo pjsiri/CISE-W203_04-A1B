@@ -39,6 +39,12 @@ export class Article {
     @Prop()
     status: string;
 
+    @Prop()
+    submitterName: string;
+
+    @Prop()
+    submitterEmail: string;
+
     @Prop({ default: 0 })
     averageRating: number;
 

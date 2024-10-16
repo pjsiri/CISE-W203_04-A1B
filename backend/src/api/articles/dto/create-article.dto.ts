@@ -10,6 +10,8 @@ export class CreateArticleDto {
     seMethod: string = "";
     summary: string;
     status: string;
+    submitterName: string;
+    submitterEmail: string;
     averageRating: number = 0;
     totalRating: number = 0;
     numberOfRatings: number = 0;
