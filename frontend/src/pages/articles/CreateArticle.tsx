@@ -1,133 +1,225 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
-import formStyles from "../../styles/Form.module.scss";
-import { Article, DefaultEmptyArticle } from "@/components/Article";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { Article, DefaultEmptyArticle } from "@/components/Article"; // Import Article and DefaultEmptyArticle
+import submitStyles from "./SubmitArticlePage.module.scss"; // Styling for the form
+import { send, init } from "emailjs-com";
 
-const CreateArticle = () => {
-    const router = useRouter();
-    const [article, setArticle] = useState<Article>(DefaultEmptyArticle);
+const SubmitArticlePage = () => {
+  const [article, setArticle] = useState<Article>(DefaultEmptyArticle);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-    // Update the article state on input change
-    const onChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setArticle({ ...article, [event.target.name]: event.target.value });
-    };
+  useEffect(() => {
+    init(process.env.NEXT_PUBLIC_EMAILJS_USER_ID!);
+  }, []);
 
-    const submitNewArticle = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+  // Handle form input changes
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setArticle((prevArticle) => ({
+      ...prevArticle,
+      [name]: value,
+    }));
+  };
 
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(article),
-            });
+  // Send email notification to moderators
+  const sendEmailNotification = async (articleTitle: string, articleAuthors: string, submitterName: string, submitterEmail: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/emails?role=moderator`);
+      const moderators = await response.json();
+  
+      if (Array.isArray(moderators)) {
+        // Collect all promises for sending emails
+        const emailPromises = moderators.map(async (moderator: { name: string; email: string }) => {
+          const templateParams = {
+            subject: "New Article Submitted for Moderation",
+            message: "You have a new article waiting for your review in the SPEED moderation queue.",
+            to_name: moderator.name,
+            to_email: moderator.email,
+            articleTitle: articleTitle,
+            articleAuthors: articleAuthors,
+            submitterName: submitterName,
+            submitterEmail: submitterEmail,
+          };
+  
+          return send(
+            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+            process.env.NEXT_PUBLIC_EMAILJS_M_A_TEMPLATE_ID!,
+            templateParams
+          );
+        });
+  
+        // Wait for all email sending promises to complete
+        await Promise.all(emailPromises);
+      } else {
+        console.error("Expected an array of moderators, but got:", moderators);
+      }
+    } catch (error) {
+      console.error("Failed to fetch moderators or send email:", error);
+    }
+  };
 
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
+  // Handle form submission
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSuccessMessage("");
+    setErrorMessage("");
 
-            console.log(await response.json());
-            setArticle(DefaultEmptyArticle); // Reset the form after submission
-            router.push("/"); // Navigate back to article list
-        } catch (err) {
-            console.error("Error from CreateArticle:", err);
-        }
-    };
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles`, article);
+      setSuccessMessage("Article submitted successfully!");
+      await sendEmailNotification(article.title!, article.authors!, article.submitterName!, article.submitterEmail!);
+      setArticle(DefaultEmptyArticle); // Reset the form after submission
+    } catch (error) {
+      setErrorMessage("Failed to submit the article. Please try again.");
+      console.error("Error submitting article:", error);
+    }
+  };
 
-    return (
-        <div className="container">
-            <h1>New Article</h1>
-            <h3>Fields marked * are required</h3>
-            <form className={formStyles.form} onSubmit={submitNewArticle}>
-                <label htmlFor="title">* Title:</label>
-                <input
-                    className={formStyles.formItem}
-                    type="text"
-                    name="title"
-                    id="title"
-                    value={article.title}
-                    onChange={onChange}
-                />
-
-                <label htmlFor="authors">* Authors:</label>
-                <input
-                    className={formStyles.formItem}
-                    type="text"
-                    name="authors"
-                    id="authors"
-                    value={article.authors} // Now a single string
-                    onChange={onChange} // Use the same onChange function
-                    placeholder="Enter authors separated by commas"
-                />
-
-                <label htmlFor="source">* Source:</label>
-                <input
-                    className={formStyles.formItem}
-                    type="text"
-                    name="source"
-                    id="source"
-                    value={article.source}
-                    onChange={onChange}
-                />
-
-                <label htmlFor="pubYear">* Publication Year:</label>
-                <input
-                    className={formStyles.formItem}
-                    type="number"
-                    name="pubYear"
-                    id="pubYear"
-                    value={article.pubYear}
-                    onChange={onChange}
-                />
-
-                <label htmlFor="volume">Volume:</label>
-                <input
-                    className={formStyles.formItem}
-                    type="text"
-                    name="volume"
-                    id="volume"
-                    value={article.volume}
-                    onChange={onChange}
-                />
-
-                <label htmlFor="number">Number:</label>
-                <input
-                    className={formStyles.formItem}
-                    type="text"
-                    name="number"
-                    id="number"
-                    value={article.number}
-                    onChange={onChange}
-                />
-
-                <label htmlFor="pages">Pages:</label>
-                <input
-                    className={formStyles.formItem}
-                    type="text"
-                    name="pages"
-                    id="pages"
-                    value={article.pages}
-                    onChange={onChange}
-                />
-
-                <label htmlFor="doi">DOI:</label>
-                <input
-                    className={formStyles.formItem}
-                    type="text"
-                    name="doi"
-                    id="doi"
-                    value={article.doi}
-                    onChange={onChange}
-                />
-
-                <button className={formStyles.formItem} type="submit">
-                    Submit
-                </button>
-            </form>
+  return (
+    <div className={submitStyles.container}>
+      <h1 className={submitStyles.title}>Submit an Article</h1>
+      <form className={submitStyles.form} onSubmit={handleSubmit}>
+        <h2>Submitter Information</h2>
+        <div className={submitStyles.inputGroup}>
+          <label className={submitStyles.label}>
+            Name:
+            <input
+              className={submitStyles.input}
+              type="text"
+              name="submitterName"
+              value={article.submitterName}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+          <label className={submitStyles.label}>
+            Email:
+            <input
+              className={submitStyles.input}
+              type="email"
+              name="submitterEmail"
+              value={article.submitterEmail}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
         </div>
-    );
+
+        <h2>Article Information</h2>
+        <div className={submitStyles.inputGroup}>
+          <label className={submitStyles.label}>
+            Title:
+            <input
+              className={submitStyles.input}
+              type="text"
+              name="title"
+              value={article.title}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+
+          <label className={submitStyles.label}>
+            Authors:
+            <input
+              className={submitStyles.input}
+              type="text"
+              name="authors"
+              value={article.authors}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+        </div>
+
+        <div className={submitStyles.inputGroup}>
+          <label className={submitStyles.label}>
+            Journal/Source:
+            <input
+              className={submitStyles.input}
+              type="text"
+              name="source"
+              value={article.source}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+
+          <label className={submitStyles.label}>
+            Publication Year:
+            <input
+              className={submitStyles.input}
+              type="text"
+              name="pubYear"
+              value={article.pubYear}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+        </div>
+
+        <div className={submitStyles.inputGroup}>
+          <label className={submitStyles.label}>
+            Volume:
+            <input
+              className={submitStyles.input}
+              type="text"
+              name="volume"
+              value={article.volume}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+
+          <label className={submitStyles.label}>
+            Number:
+            <input
+              className={submitStyles.input}
+              type="text"
+              name="number"
+              value={article.number}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+        </div>
+
+        <div className={submitStyles.inputGroup}>
+          <label className={submitStyles.label}>
+            Pages:
+            <input
+              className={submitStyles.input}
+              type="text"
+              name="pages"
+              value={article.pages}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+
+          <label className={submitStyles.label}>
+            DOI:
+            <input
+              className={submitStyles.input}
+              type="text"
+              name="doi"
+              value={article.doi}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+        </div>
+
+        <button className={submitStyles.button} type="submit">
+          Submit Article
+        </button>
+
+        {successMessage && <p className={submitStyles.success}>{successMessage}</p>}
+        {errorMessage && <p className={submitStyles.error}>{errorMessage}</p>}
+      </form>
+    </div>
+  );
 };
 
-export default CreateArticle;
+export default SubmitArticlePage;

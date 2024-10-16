@@ -11,6 +11,8 @@ export type Article = {
     seMethod?: string;
     summary?: string;
     status?: string;
+    submitterName?: string;
+    submitterEmail?: string;
 };
 
 export const DefaultEmptyArticle: Article = {
@@ -26,4 +28,6 @@ export const DefaultEmptyArticle: Article = {
     seMethod: '',
     summary: '',
     status: 'pending_moderation',
+    submitterName: '',
+    submitterEmail: '',
 }    

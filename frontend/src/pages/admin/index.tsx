@@ -76,6 +76,7 @@ const AdminPage = () => {
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${selectedArticle._id}`,
           selectedArticle
         );
+        setFormMode("add");
       } catch (error) {
         console.error("Error updating article:", error);
       }

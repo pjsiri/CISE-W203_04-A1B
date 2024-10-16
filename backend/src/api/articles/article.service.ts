@@ -10,7 +10,7 @@ export class ArticleService {
   constructor(@InjectModel(Article.name) private readonly articleModel: Model<Article>) {}
 
   test(): string {
-    return 'book route testing';
+    return 'article route testing';
   }
 
   async findAll(): Promise<Article[]> {
