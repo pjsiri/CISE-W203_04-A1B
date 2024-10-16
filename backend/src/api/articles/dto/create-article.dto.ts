@@ -11,4 +11,6 @@ export class CreateArticleDto {
     summary: string;
     status: string;
     averageRating: number = 0;
+    totalRating: number = 0;
+    numberOfRatings: number = 0;
 }  

@@ -41,6 +41,12 @@ export class Article {
 
     @Prop({ default: 0 })
     averageRating: number;
+
+    @Prop({ default: 0 })
+    totalRating: number;
+  
+    @Prop({ default: 0 })
+    numberOfRatings: number;
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);

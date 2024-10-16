@@ -9,7 +9,7 @@ interface Article {
   title: string;
   authors: string;
   source: string;
-  pubYear: string;
+  pubYear: number;
   volume: string;
   number: string;
   pages: string;
