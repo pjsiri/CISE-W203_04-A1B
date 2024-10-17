@@ -1,4 +1,4 @@
-# CISE-W203_04-A1B / Assignment 1B
+# CISE-W203_04-A1B
 
 # Software Practice Empirical Evidence Database (SPEED) 
 
