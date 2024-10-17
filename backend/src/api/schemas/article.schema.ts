@@ -44,6 +44,18 @@ export class Article {
 
     @Prop()
     submitterEmail: string;
+    
+    @Prop({ default: "" })
+    claim: string;
+  
+    @Prop({ default: "" })
+    evidenceResult: string;
+  
+    @Prop({ default: "" })
+    researchType: string;
+  
+    @Prop({ default: "" })
+    participantType: string;
 
     @Prop({ default: 0 })
     averageRating: number;
