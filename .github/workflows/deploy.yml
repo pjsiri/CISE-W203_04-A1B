@@ -29,26 +29,26 @@ jobs:
 
       # Frontend Deploy Steps
       - name: Pull Vercel Frontend Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       
       - name: Build Frontend Artifacts
         run: |
           cd frontend
           npm install
-          vercel build --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
       
       - name: Deploy Frontend to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --prod
 
       # Backend Deploy Steps
       - name: Pull Vercel Backend Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       
       - name: Build Backend Artifacts
         run: |
           cd backend
           npm install
-          vercel build --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
+          vercel build --token=${{ secrets.VERCEL_TOKEN }}
       
       - name: Deploy Backend to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --prod
