@@ -1,0 +1,54 @@
+name: GitHub Actions Vercel Deploy
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID_FRONTEND: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+  VERCEL_PROJECT_ID_BACKEND: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
+
+on:
+  pull_request:
+    branches: ["main"]
+    types:
+      - closed
+
+jobs:
+  Test:
+    if: github.event.pull_request.merged == true
+    uses: pjsiri/CISE-W203_04-A1B/.github/workflows/test.yml@develop
+
+  Deploy-Production:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    needs: [Test]
+    steps:
+      - uses: actions/checkout@v3
+
+      # Install Vercel CLI
+      - name: Install Vercel CLI
+        run: npm install --global vercel@canary
+
+      # Frontend Deploy Steps
+      - name: Pull Vercel Frontend Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+      
+      - name: Build Frontend Artifacts
+        run: |
+          cd frontend
+          npm install
+          vercel build --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+      
+      - name: Deploy Frontend to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+
+      # Backend Deploy Steps
+      - name: Pull Vercel Backend Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
+      
+      - name: Build Backend Artifacts
+        run: |
+          cd backend
+          npm install
+          vercel build --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
+      
+      - name: Deploy Backend to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --project-id=${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
