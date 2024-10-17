@@ -14,8 +14,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependecies
-        run: npm install
+      # Frontend test
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          npm install
 
-      - name: Run test
-        run: npm run test:ci
+      - name: Run Frontend Test
+        run: |
+          cd frontend
+          npm run test:ci
+
+      # Backend test
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm install
+
+      - name: Run Backend Test
+        run: |
+          cd backend
+          npm run test:ci
