@@ -38,7 +38,12 @@ const PopulatedNavBar = () => {
               <NavItem route="/moderator">Moderator</NavItem>
             )}
             {session?.user?.role === 'admin' && (
-              <NavItem route="/admin">Admin</NavItem>
+              <NavItem dropdown route="/admin">Admin <IoMdArrowDropdown />
+                <NavDropdown>
+                    <NavItem route="/admin">Manage articles</NavItem>
+                    <NavItem route="/admin/manageEmails">Manage roles</NavItem>
+                </NavDropdown>
+              </NavItem>
             )}
             {session ? (
               <NavItem onClick={() => signOut()}>Sign Out</NavItem>

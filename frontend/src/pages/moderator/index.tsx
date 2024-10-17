@@ -2,199 +2,271 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { getSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import formStyles from "./ModeratorPage.module.scss";
-
-interface Article {
-    _id: number;
-    title: string;
-    authors: string;
-    source: string;
-    pubYear: number;
-    volume: string;
-    number: string;
-    pages: string;
-    doi: string;
-    status: string; // 'pending_moderation', 'approved', 'rejected'
-    seMethod: string;
-}
+import { Article, DefaultEmptyArticle } from "@/components/Article"; // Importing Article and DefaultEmptyArticle
+import { init, send } from 'emailjs-com';
+import formStyles from "./ModeratorPage.module.scss"; // Importing styles
 
 const ModeratorPage = () => {
-    const [articles, setArticles] = useState<Article[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [seMethods, setSeMethods] = useState<string[]>([]);
-    const [selectedSeMethod, setSelectedSeMethod] = useState<string>("");
-    const [newSeMethod, setNewSeMethod] = useState<string>("");
-    const router = useRouter();
+  const [articles, setArticles] = useState<Article[]>([]); // Article[] from the imported type
+  const [loading, setLoading] = useState(true);
+  const [seMethods, setSeMethods] = useState<string[]>([]);
+  const [selectedSeMethod, setSelectedSeMethod] = useState<string>("");
+  const [newSeMethod, setNewSeMethod] = useState<string>("");
+  const router = useRouter();
 
-    // Check if the user is authenticated
-    useEffect(() => {
-        const securePage = async () => {
-            const session = await getSession();
-            if (!session) {
-                router.push('/auth/signin'); // Redirect to sign-in if not authenticated
-            } else {
-                setLoading(false); // Allow access if authenticated
-            }
-        };
-        securePage();
-    }, [router]);
+  // Initialize Email.js
+  useEffect(() => {
+    init(process.env.NEXT_PUBLIC_EMAILJS_USER_ID!); // Add your EmailJS user ID here
+  }, []);
 
-    // Fetch articles with "pending_moderation" status from the backend API
-    useEffect(() => {
-        const fetchPendingArticles = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?status=pending_moderation`);
-                const data = await response.json();
-        
-                if (Array.isArray(data)) {
-                    setArticles(data);
-                } else {
-                    console.error("Expected an array of articles, but got:", data);
-                }
-            } catch (err) {
-                console.error('Error fetching articles:', err);
-            }
-        };
+  // Check if the user is authenticated
+  useEffect(() => {
+    const securePage = async () => {
+      const session = await getSession();
+      if (!session) {
+        router.push('/auth/signin'); // Redirect to sign-in if not authenticated
+      } else {
+        setLoading(false); // Allow access if authenticated
+      }
+    };
+    securePage();
+  }, [router]);
 
-        if (!loading) {
-            fetchPendingArticles(); // Fetch articles only after session check
+  // Fetch articles with "pending_moderation" status from the backend API
+  useEffect(() => {
+    const fetchPendingArticles = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?status=pending_moderation`);
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          setArticles(data);
+        } else {
+          console.error("Expected an array of articles, but got:", data);
         }
-    }, [loading]);
-
-    // Fetch distinct SE Methods from the backend API
-    useEffect(() => {
-        const fetchSeMethods = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/distinct-se-methods`);
-                const data = await response.json();
-
-                if (Array.isArray(data)) {
-                    setSeMethods(data);
-                } else {
-                    console.error("Expected an array of SE Methods, but got:", data);
-                }
-            } catch (err) {
-                console.error('Error fetching SE Methods:', err);
-                alert('Failed to fetch SE Methods. Please try again later.');
-            }
-        };
-
-        fetchSeMethods();
-    }, []);
-
-    const updateArticleStatusAndSeMethod = async (id: number, newStatus: string, seMethod: string) => {
-        try {
-            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { status: newStatus, seMethod });
-            // Update the local state after the status is changed successfully
-            setArticles(
-                articles.map((article) =>
-                    article._id === id ? { ...article, status: newStatus, seMethod } : article
-                )
-            );
-        } catch (error) {
-            console.error(`Error updating article status to ${newStatus}:`, error);
-        }
+      } catch (err) {
+        console.error('Error fetching articles:', err);
+      }
     };
 
-    const approveArticle = (id: number) => {
-        const seMethod = newSeMethod || selectedSeMethod;
-        if (!seMethod) {
-            alert("Please select or enter an SE Method.");
-            return;
+    if (!loading) {
+      fetchPendingArticles(); // Fetch articles only after session check
+    }
+  }, [loading]);
+
+  // Fetch distinct SE Methods from the backend API
+  useEffect(() => {
+    const fetchSeMethods = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/distinct-se-methods`);
+        const data = await response.json();
+
+        if (Array.isArray(data)) {
+          setSeMethods(data);
+        } else {
+          console.error("Expected an array of SE Methods, but got:", data);
         }
-        updateArticleStatusAndSeMethod(id, "approved", seMethod);
+      } catch (err) {
+        console.error('Error fetching SE Methods:', err);
+        alert('Failed to fetch SE Methods. Please try again later.');
+      }
     };
 
-    const rejectArticle = (id: number) => {
-        updateArticleStatusAndSeMethod(id, "rejected", "");    
-    };
+    fetchSeMethods();
+  }, []);
 
-    if (loading) {
-        return <div className={formStyles.loading}>Loading...</div>; // Display a loading indicator while checking authentication
+  // Send email notification
+  const sendEmailNotification = (name: string, email: string, articleTitle: string, articleStatus: string) => {
+    const templateParams = {
+      to_name: name,
+      to_email: email,
+      articleTitle: articleTitle,
+      articleStatus: articleStatus,
+    };
+  
+    send(process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!, process.env.NEXT_PUBLIC_EMAILJS_SUB_TEMPLATE_ID!, templateParams)
+      .then((response) => {
+        console.log('Email sent successfully!', response);
+      })
+      .catch((err) => {
+        console.error('Failed to send email:', err);
+      });
+  };
+
+  // Send email notification to analysts
+  const sendEmailToAnalysts = async (articleTitle: string, articleAuthors: string, submitterName: string, submitterEmail: string) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/emails?role=analyst`);
+      const analysts = await response.json();
+
+      if (Array.isArray(analysts)) {
+        analysts.forEach(async (analyst: { name: string; email: string }) => {
+          const templateParams = {
+            subject: "New Article Ready for Analysis",
+            message: "You have a new article waiting for your analysis in the SPEED analysis queue.",
+            to_name: analyst.name,
+            to_email: analyst.email,
+            articleTitle: articleTitle,
+            articleAuthors: articleAuthors,
+            submitterName: submitterName,
+            submitterEmail: submitterEmail,
+          };
+
+          await send(
+            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+            process.env.NEXT_PUBLIC_EMAILJS_M_A_TEMPLATE_ID!,
+            templateParams
+          );
+        });
+      } else {
+        console.error("Expected an array of analysts, but got:", analysts);
+      }
+    } catch (error) {
+      console.error("Failed to fetch analysts or send email:", error);
+    }
+  };
+
+  const updateArticleStatusAndSeMethod = async (id: string, newStatus: string, seMethod: string, article: Article) => {
+    try {
+      await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { status: newStatus, seMethod });
+      // Update the local state after the status is changed successfully
+      setArticles(
+        articles.map((article) =>
+          article._id === id ? { ...article, status: newStatus, seMethod } : article
+        )
+      );
+
+      // Send email notification to submitter
+      sendEmailNotification(article.submitterName!, article.submitterEmail!, article.title!, newStatus);
+      // If the article is approved, send email to analysts
+      if (newStatus === "approved") {
+        await sendEmailToAnalysts(article.title!, article.authors!, article.submitterName!, article.submitterEmail!);
+      }
+    } catch (error) {
+      console.error(`Error updating article status to ${newStatus}:`, error);
+    }
+  };
+
+  const approveArticle = (article: Article) => {
+    const seMethod = newSeMethod || selectedSeMethod;
+    if (!seMethod) {
+      alert("Please select or enter an SE Method.");
+      return;
     }
 
-    return (
-        <div className={formStyles.container}>
-            <h1 className={formStyles.title}>Moderator Dashboard</h1>
-            <h2 className={formStyles.subtitle}>Articles Pending Moderation</h2>
-            <table className={formStyles.table}>
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                        <th>Authors</th>
-                        <th>Journal</th>
-                        <th>Year</th>
-                        <th>DOI</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {articles.length === 0 ? (
-                        <tr>
-                            <td colSpan={7} className={formStyles.noArticles}>
-                                No articles pending moderation
-                            </td>
-                        </tr>
-                    ) : (
-                        articles.map((article) => (
-                            <tr key={article._id} className={formStyles.tableRow}>
-                                <td>{article.title}</td>
-                                <td>{article.authors}</td>
-                                <td>{article.source}</td>
-                                <td>{article.pubYear}</td>
-                                <td>{article.doi}</td>
-                                <td className={formStyles.status}>
-                                    {article.status.replace("_", " ").toUpperCase()}
-                                </td>
-                                <td className={formStyles.actions}>
-                                    {article.status === "pending_moderation" ? (
-                                        <div className={formStyles.buttonGroup}>
-                                            <select
-                                                value={selectedSeMethod}
-                                                onChange={(e) => setSelectedSeMethod(e.target.value)}
-                                                className={formStyles.formItem}
-                                            >
-                                                <option value="">Select SE Method</option>
-                                                {seMethods.map((method) => (
-                                                    <option key={method} value={method}>
-                                                        {method}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            <input
-                                                type="text"
-                                                placeholder="Or enter new SE Method"
-                                                value={newSeMethod}
-                                                onChange={(e) => setNewSeMethod(e.target.value)}
-                                                className={formStyles.formItem}
-                                            />
-                                            <button
-                                                className={formStyles.approveButton}
-                                                onClick={() => approveArticle(article._id)}
-                                            >
-                                                Approve
-                                            </button>
-                                            <button
-                                                className={formStyles.rejectButton}
-                                                onClick={() => rejectArticle(article._id)}
-                                            >
-                                                Reject
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <span className={formStyles.statusText}>
-                                            {article.status.replace("_", " ").toUpperCase()}
-                                        </span>
-                                    )}
-                                </td>
-                            </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
-        </div>
-    );
+    if (article._id) {
+        updateArticleStatusAndSeMethod(article._id, "approved", seMethod, article);
+      } else {
+        console.error("Article is undefined");
+      }
+  };
+
+  const rejectArticle = (article: Article) => {
+    if (article._id) {
+        updateArticleStatusAndSeMethod(article._id, "rejected", "", article);
+      } else {
+        console.error("Article is undefined");
+      }
+  };
+
+  if (loading) {
+    return <div className={formStyles.loading}>Loading...</div>; // Display a loading indicator while checking authentication
+  }
+
+  return (
+    <div className={formStyles.container}>
+      <h1 className={formStyles.title}>Moderator Dashboard</h1>
+      <h2 className={formStyles.subtitle}>Articles Pending Moderation</h2>
+      <table className={formStyles.table}>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Authors</th>
+            <th>Journal</th>
+            <th>Year</th>
+            <th>DOI</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {articles.length === 0 ? (
+            <tr>
+              <td colSpan={7} className={formStyles.noArticles}>
+                No articles pending moderation
+              </td>
+            </tr>
+          ) : (
+            articles.map((article) => (
+              <tr key={article._id ?? article.title} className={formStyles.tableRow}>
+                <td>{article.title}</td>
+                <td>{article.authors}</td>
+                <td>{article.source}</td>
+                <td>{article.pubYear}</td>
+                <td>{article.doi}</td>
+                <td className={formStyles.status}>
+                  {article.status?.replace("_", " ").toUpperCase() || "PENDING"}
+                </td>
+                <td className={formStyles.actions}>
+                  {article.status === "pending_moderation" ? (
+                    <div className={formStyles.buttonGroup}>
+                      <select
+                        value={selectedSeMethod}
+                        onChange={(e) => setSelectedSeMethod(e.target.value)}
+                        className={formStyles.formItem}
+                      >
+                        <option value="">Select SE Method</option>
+                        {seMethods.map((method) => (
+                          <option key={method} value={method}>
+                            {method}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Or enter new SE Method"
+                        value={newSeMethod}
+                        onChange={(e) => setNewSeMethod(e.target.value)}
+                        className={formStyles.formItem}
+                      />
+                      <button
+                        className={formStyles.approveButton}
+                        onClick={() => {
+                          if (article._id) {
+                            approveArticle(article);
+                          } else {
+                            console.error("Article ID is undefined");
+                          }
+                        }}
+                      >
+                        Approve
+                      </button>
+                      <button
+                        className={formStyles.rejectButton}
+                        onClick={() => {
+                          if (article._id) {
+                            rejectArticle(article);
+                          } else {
+                            console.error("Article ID is undefined");
+                          }
+                        }}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  ) : (
+                    <span className={formStyles.statusText}>
+                      {article.status?.replace("_", " ").toUpperCase() || "PENDING"}
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
 };
 
 export default ModeratorPage;
