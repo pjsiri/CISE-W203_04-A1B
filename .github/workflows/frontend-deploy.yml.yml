@@ -1,0 +1,41 @@
+name: GitHub Actions Vercel Deploy
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+
+on:
+  pull_request:
+    branches: ["main"]
+    types:
+      - closed
+
+jobs:
+  Test:
+    if: github.event.pull_request.merged == true
+    uses: pjsiri/CISE-W203_04-A1B/.github/workflows/test.yml@main
+
+  Deploy-Frontend:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    needs: [Test]
+    steps:
+      - uses: actions/checkout@v3
+
+      # Install Vercel CLI
+      - name: Install Vercel CLI
+        run: |
+          cd frontend
+          npm install --global vercel@canary
+      # Step 3: Install NestJS CLI globally
+      - name: Install NestJS CLI globally
+        run: npm install -g @nestjs/cli
+      # Frontend Deploy Steps
+      - name: Pull Vercel Frontend Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build Frontend Artifacts
+        run: |
+          npm install
+          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Frontend to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --prod
