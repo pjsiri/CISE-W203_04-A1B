@@ -2,37 +2,28 @@ name: GitHub Actions Vercel Deploy
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
-
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
     types:
       - closed
-
 jobs:
   Test:
     if: github.event.pull_request.merged == true
     uses: pjsiri/CISE-W203_04-A1B/.github/workflows/test.yml@main
 
-  Deploy-Frontend:
+  Deploy-Production:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     needs: [Test]
     steps:
       - uses: actions/checkout@v3
-
-      # Install Vercel CLI
       - name: Install Vercel CLI
         run: npm install --global vercel@canary
-
-      # Frontend Deploy Steps
-      - name: Pull Vercel Frontend Environment Information
+      - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Build Frontend Artifacts
-        run: |
-          cd frontend
-          npm install
-          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Deploy Frontend to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} --prod
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
