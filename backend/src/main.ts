@@ -1,58 +1,52 @@
 // import { NestFactory } from '@nestjs/core';
 // import { AppModule } from './app.module';
+// import { Logger } from '@nestjs/common';
+// import * as mongoose from 'mongoose';
+// import * as dotenv from 'dotenv';
+
+// dotenv.config();
 
 // async function bootstrap() {
+//   const dbUrl = process.env.DB_URL;
+  
+//   Logger.log(`DB_URI: ${dbUrl}`, 'Bootstrap');
+
+//   try {
+//     await mongoose.connect(dbUrl, { serverSelectionTimeoutMS: 5000 });
+//     Logger.log('Database connected successfully');
+//   } catch (err) {
+//     Logger.error('Database connection error:', err.message);
+//   }
+
 //   const app = await NestFactory.create(AppModule);
-//   app.enableCors(); // Enable CORS
-//   await app.listen(8082);
-// }
-// bootstrap();
 
-// import { NestFactory } from '@nestjs/core';
-// import { AppModule } from './app.module';
-// import { ExpressAdapter } from '@nestjs/platform-express';
-// import express from 'express';
-
-// const server = express();
-
-// async function bootstrap() {
-//   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
-//   app.enableCors();
-//   await app.init();
+//   app.enableCors({ origin: true, credentials: true });
+//   const port = process.env.PORT || 8082;
+  
+//   await app.listen(port, () => Logger.log(`Server running on port ${port}`));
 // }
 
 // bootstrap();
-
-// export default server;
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
+import { Logger } from '@nestjs/common';
 
-async function bootstrap(retries = 5) {
-  let attempts = 0;
+const server = express();
 
-  while (attempts < retries) {
-    try {
-      const app = await NestFactory.create(AppModule);
-      app.enableCors(); // Enable CORS
-      const port = process.env.PORT || 8082;
-      await app.listen(port); // Listen on the desired port
-      console.log('Nest application successfully started on port 8082');
-      return; // Exit the loop if successful
-    } catch (error) {
-      attempts++;
-      console.error(`Attempt ${attempts} failed. Error: ${error.message}`);
-      if (attempts < retries) {
-        await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds delay
-      } else {
-        console.error('Max retries reached. Exiting application.');
-        process.exit(1); // Exit the process if all retries fail
-      }
-    }
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+  app.enableCors();
+
+  if (process.env.NODE_ENV === 'production') {
+    await app.init(); // Vercel handles the listening in production
+  } else {
+    const port = process.env.PORT || 8082;
+    await app.listen(port, () => Logger.log(`Server running on port ${port}`));
   }
 }
-
 bootstrap();
 
-// Export the Nest application for Vercel
-export default bootstrap;
+export default server;
