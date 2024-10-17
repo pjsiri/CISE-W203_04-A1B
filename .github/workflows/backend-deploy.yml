@@ -24,13 +24,14 @@ jobs:
 
       # Install Vercel CLI
       - name: Install Vercel CLI
-        run: npm install --global vercel@canary
+        run: |
+          cd backend
+          npm install --global vercel@canary
       # Backend Deploy Steps
       - name: Pull Vercel Backend Environment Information
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       - name: Build Backend Artifacts
         run: |
-          cd backend
           npm install
           vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy Backend to Vercel
