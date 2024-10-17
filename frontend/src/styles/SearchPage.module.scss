@@ -48,6 +48,7 @@
     border-radius: 8px;
     transition: background-color 0.3s ease;
     margin-top: 20px;
+    margin-right: 10px;
   
     &:hover {
       background-color: #005bb5;
@@ -80,4 +81,43 @@
   
   .tr:hover {
     background-color: #f1f1f1;
+  }
+  
+  .savedContainer {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .savedTitle {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .savedList {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #fff;
+  }
+  
+  .savedItem {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .savedItem:last-child {
+    border-bottom: none;
+  }
+  
+  .savedItem p {
+    margin: 5px 0;
+  }
+  
+  .savedItem button {
+    margin-top: 10px;
   }

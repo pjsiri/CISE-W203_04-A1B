@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import styles from '../../styles/SearchPage.module.scss'
 
 interface SearchResult {
@@ -20,6 +19,12 @@ interface SearchResult {
   numberOfRatings: number;
 }
 
+interface SavedSearch {
+  seMethod: string;
+  startYear: number | null;
+  endYear: number | null;
+}
+
 const SearchPage = () => {
   const [method, setMethod] = useState("");
   const [startYear, setStartYear] = useState("");
@@ -27,12 +32,14 @@ const SearchPage = () => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [seMethods, setSeMethods] = useState<string[]>([]);
   const [ratings, setRatings] = useState<{ [key: string]: number }>({});
+  const [savedSearches, setSavedSearches] = useState<SavedSearch[]>([]);
 
   useEffect(() => {
     const fetchSeMethods = async () => {
       try {
-        const response = await axios.get<string[]>(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/distinct-se-methods`);
-        setSeMethods(response.data);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/distinct-se-methods`);
+        const data = await response.json();
+        setSeMethods(data);
       } catch (error) {
         console.error("Error fetching SE methods:", error);
       }
@@ -41,20 +48,55 @@ const SearchPage = () => {
     fetchSeMethods();
   }, []);
 
+  useEffect(() => {
+    const savedSearches = localStorage.getItem('savedSearches');
+    if (savedSearches) {
+      setSavedSearches(JSON.parse(savedSearches));
+    }
+  }, []);
+
   const handleSearch = async () => {
     try {
-      const response = await axios.get<SearchResult[]>(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/search`, {
-        params: {
-          method,
-          startYear: startYear || undefined,
-          endYear: endYear || undefined,
+      const params = new URLSearchParams({
+        method,
+        startYear: startYear || "",
+        endYear: endYear || "",
+      });
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/search?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
         },
       });
-      console.log('Search results:', response.data); // Logging to verify the response
-      const approvedResults = response.data.filter(result => result.status === "approved");
+      const data = await response.json();
+      console.log('Search results:', data); // Logging to verify the response
+      const approvedResults = data.filter((result: SearchResult) => result.status === "approved");
       setResults(approvedResults);
     } catch (error) {
       console.error("Error fetching search results:", error);
+    }
+  };
+
+  const handleSaveSearch = () => {
+    const existingSearch = savedSearches.find(
+      (search) =>
+        search.seMethod === method &&
+        search.startYear === (startYear ? parseInt(startYear) : null) &&
+        search.endYear === (endYear ? parseInt(endYear) : null)
+    );
+
+    if (!existingSearch) {
+      const newSavedSearches = [
+        ...savedSearches,
+        {
+          seMethod: method,
+          startYear: startYear ? parseInt(startYear) : null,
+          endYear: endYear ? parseInt(endYear) : null,
+        },
+      ];
+      setSavedSearches(newSavedSearches);
+      localStorage.setItem('savedSearches', JSON.stringify(newSavedSearches));
     }
   };
 
@@ -66,12 +108,25 @@ const SearchPage = () => {
     try {
       const rating = ratings[id];
       if (rating) {
-        await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}/rate`, { rating });
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}/rate`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ rating }),
+        });
         handleSearch(); // Refresh the search results to show updated ratings
       }
     } catch (error) {
       console.error("Error submitting rating:", error);
     }
+  };
+
+  const handleSavedSearch = async (seMethod: string, startYear: number, endYear: number) => {
+    setMethod(seMethod);
+    setStartYear(startYear ? startYear.toString() : "");
+    setEndYear(endYear ? endYear.toString() : "");
+    await handleSearch();
   };
 
   return (
@@ -113,6 +168,7 @@ const SearchPage = () => {
         </label>
       </div>
       <button className={styles.button} onClick={handleSearch}>Search</button>
+      <button className={styles.button} onClick={handleSaveSearch}>Save Search</button>
       <div>
         <table className={styles.table}>
           <thead>
@@ -147,7 +203,7 @@ const SearchPage = () => {
                 <td className={styles.td}>{result.averageRating.toFixed(2)} <br /> ({result.numberOfRatings} ratings)</td>
                 <td className={styles.td}>
                   <select
-                    className={styles.select}
+                    className={styles.rating}
                     value={ratings[result._id] || ""}
                     onChange={(e) => handleRatingChange(result._id, parseInt(e.target.value, 10))}
                   >
@@ -166,6 +222,21 @@ const SearchPage = () => {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className={styles.savedContainer}>
+        <h2 className={styles.savedTitle}>Saved Searches</h2>
+        <div className={styles.savedList}>
+          {savedSearches.map((search, index) => (
+            <div key={index} className={styles.savedItem}>
+              <p>SE Method: {search.seMethod}</p>
+              <p>Start Year: {search.startYear}</p>
+              <p>End Year: {search.endYear}</p>
+              <button className={styles.button} onClick={() => handleSavedSearch(search.seMethod, search.startYear ?? 0, search.endYear ?? 0)}>
+                Search
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
