@@ -59,6 +59,13 @@
     }
   }
   
+  .sortInstructions {
+    margin-top: 50px;
+    font-size: 1.2rem;
+    color: #333;
+    text-align: center;
+  }
+  
   .table {
     width: 100%;
     max-width: 1200px;
@@ -76,8 +83,94 @@
   .th {
     background-color: #f4f4f4;
     font-weight: bold;
+    cursor: pointer; /* Change cursor to pointer */
+    transition: background-color 0.3s ease; /* Smooth transition for background color */
+  
+    &:hover {
+      background-color: #e0e0e0; /* Darker background on hover */
+    }
   }
   
   .tr:hover {
     background-color: #f1f1f1;
+  }
+  
+  .rating {
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .savedContainer {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 250px;
+  }
+  
+  .savedTitle {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .savedList {
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #fff;
+  }
+  
+  .savedItem {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .savedItem:last-child {
+    border-bottom: none;
+  }
+  
+  .savedItem p {
+    margin: 5px 0;
+  }
+  
+  .savedItem button {
+    margin-top: 10px;
+    padding: 15px 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  
+  .savedFilter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  
+  .savedFilter button {
+    margin-top: 0px;
+    padding: 15px 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 8px;
+  }
+  
+  .columnVisibility {
+    margin-top: 20px;
+    text-align: center;
+  }
+  
+  .summary {
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
   }
