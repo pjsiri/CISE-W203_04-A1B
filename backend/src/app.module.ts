@@ -14,7 +14,7 @@ import { EmailService } from './api/emails/email.service';
   imports: [
     ConfigModule.forRoot(),
     MongooseModule.forRoot("mongodb+srv://bsouthg8:w203_04@cluster0.9mk3x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"),
-    MongooseModule.forFeature([{ name: 'Article', schema: ArticleSchema }]),
+    MongooseModule.forFeature([{ name: 'Article', schema: ArticleSchema }, { name: 'Email', schema: EmailSchema }]),
   ],
   controllers: [AppController, ArticleController, EmailController],
   providers: [AppService, ArticleService, EmailService],
