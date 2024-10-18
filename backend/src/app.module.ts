@@ -1,22 +1,33 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ArticleSchema } from './api/schemas/article.schema';
-import { ArticleController } from './api/articles/article.controller';
-import { ArticleService } from './api/articles/article.service';
-import { EmailSchema } from './api/emails/email.schema';
-import { EmailController } from './api/emails/email.controller';
-import { EmailService } from './api/emails/email.service';
+import { AppLoggerMiddleware } from './middleware/applogger.middleware';
+import { ArticleModule } from './api/articles/article.module';
+import { EmailModule } from './api/emails/email.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot("mongodb+srv://bsouthg8:w203_04@cluster0.9mk3x.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"),
-    MongooseModule.forFeature([{ name: 'Article', schema: ArticleSchema }, { name: 'Email', schema: EmailSchema }]),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get('DB_URL'),
+        dbName: 'test',
+      }),
+      inject: [ConfigService],
+    }),
+    ArticleModule,
+    EmailModule
   ],
-  controllers: [AppController, ArticleController, EmailController],
-  providers: [AppService, ArticleService, EmailService],
+  controllers: [AppController],
+  providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(AppLoggerMiddleware).forRoutes('*');
+  }
+}
