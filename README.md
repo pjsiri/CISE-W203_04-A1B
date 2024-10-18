@@ -33,8 +33,8 @@ The SPEED application is hosted on Vercel and can be found at the following link
 
 ## Vercel Links
 
-- Frontend: [https://frontend-prom-jack-sirisukhas-projects.vercel.app/](https://frontend-prom-jack-sirisukhas-projects.vercel.app/)
-- Backend: [https://backend-prom-jack-sirisukhas-projects.vercel.app/](https://backend-prom-jack-sirisukhas-projects.vercel.app/)
+- Frontend: [https://frontend-prom-jack-sirisukhas-projects.vercel.app](https://frontend-prom-jack-sirisukhas-projects.vercel.app)
+- Backend: [https://backend-prom-jack-sirisukhas-projects.vercel.app](https://backend-prom-jack-sirisukhas-projects.vercel.app)
 
 ## Running Locally
 Clone the Repositories:
