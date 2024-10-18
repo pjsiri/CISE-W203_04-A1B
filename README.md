@@ -4,7 +4,7 @@
 
 ## Overview
 
-SPEED is a web application designed to support evidence-based software engineering (SE) practices. The primary aim of SPEED is to provide developers and practitioners with access to empirical evidence regarding various software engineering claims, enabling informed decisions based on verified research.
+SPEED is a web application designed to support evidence-based software engineering practices. The primary aim of SPEED is to provide developers and practitioners with access to empirical evidence regarding various software engineering claims, enabling informed decisions based on verified research.
 
 ## Made By
 
