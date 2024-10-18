@@ -29,7 +29,7 @@ SPEED is built using:
 
 ## Production Host
 
-The SPEED application is hosted on Vercel and can be accessed at the following link: [https://frontend-prom-jack-sirisukhas-projects.vercel.app/](https://frontend-prom-jack-sirisukhas-projects.vercel.app/). 
+The SPEED application is hosted on Vercel and can be found at the following link: [https://frontend-prom-jack-sirisukhas-projects.vercel.app/](https://frontend-prom-jack-sirisukhas-projects.vercel.app/). 
 
 ## Vercel Links
 
