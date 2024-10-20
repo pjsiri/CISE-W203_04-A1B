@@ -15,13 +15,15 @@ interface Article {
     pages: string;
     doi: string;
     summary: string;
+    status: string; // New field to track status
 }
 
 const AnalystPage = () => {
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
-    const [summaries, setSummaries] = useState<{ [key: number]: string }>({}); 
+    const [summaries, setSummaries] = useState<{ [key: number]: string }>({});
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+    const [showAnalysed, setShowAnalysed] = useState(false); // Toggle between non-analysed and analysed
     const router = useRouter();
 
     useEffect(() => {
@@ -37,38 +39,39 @@ const AnalystPage = () => {
     }, [router]);
 
     useEffect(() => {
-        const fetchApprovedArticles = async () => {
+        const fetchArticles = async () => {
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?status=approved`);
-                const data = await response.json();
-                if (Array.isArray(data)) {
-                    // Sort articles: those with empty summaries (or null) come first
-                    const sortedArticles = data.sort((a, b) => {
-                        const aHasSummary = a.summary?.trim().length > 0;
-                        const bHasSummary = b.summary?.trim().length > 0;
-                        return aHasSummary === bHasSummary ? 0 : aHasSummary ? 1 : -1;
-                    });
-                    setArticles(sortedArticles);
+                // Fetch approved articles
+                const approvedResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?status=approved`);
+                const approvedData = await approvedResponse.json();
+    
+                // Fetch analysed articles
+                const analysedResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?status=analysed`);
+                const analysedData = await analysedResponse.json();
+    
+                if (Array.isArray(approvedData) && Array.isArray(analysedData)) {
+                    const combinedArticles = [...approvedData, ...analysedData];
+                    setArticles(combinedArticles);
                 } else {
-                    console.error('Expected an array of articles, but got:', data);
+                    console.error('Expected an array of articles, but got:', approvedData, analysedData);
                 }
             } catch (err) {
                 console.error('Error fetching articles:', err);
             }
         };
-
+    
         if (!loading) {
-            fetchApprovedArticles();
+            fetchArticles();
         }
     }, [loading]);
 
     const submitAnalysis = async (id: number, newSummary: string) => {
         try {
-            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { summary: newSummary });
+            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { summary: newSummary, status: 'analysed' });
 
             setArticles(
                 articles.map((article) =>
-                    article._id === id ? { ...article, summary: newSummary } : article
+                    article._id === id ? { ...article, summary: newSummary, status: 'analysed' } : article
                 )
             );
 
@@ -86,11 +89,11 @@ const AnalystPage = () => {
 
     const removeAnalysis = async (id: number) => {
         try {
-            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { summary: '' });
+            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { summary: '', status: 'approved' });
 
             setArticles(
                 articles.map((article) =>
-                    article._id === id ? { ...article, summary: '' } : article
+                    article._id === id ? { ...article, summary: '', status: 'approved' } : article
                 )
             );
 
@@ -98,13 +101,18 @@ const AnalystPage = () => {
             delete newSummaries[id];
             setSummaries(newSummaries);
 
-            // Show success message
             setShowSuccessMessage(true);
             setTimeout(() => setShowSuccessMessage(false), 3000);
         } catch (error) {
             console.error(`Error removing analysis for article ID ${id}:`, error);
         }
     };
+
+    const toggleView = () => setShowAnalysed(!showAnalysed); // Toggle between the two views
+
+    const filteredArticles = articles.filter(article => 
+        showAnalysed ? article.status === 'analysed' : article.status === 'approved'
+    );
 
     if (loading) {
         return <div className={formStyles.loading}>Loading...</div>;
@@ -113,7 +121,14 @@ const AnalystPage = () => {
     return (
         <div className={formStyles.container}>
             <h1 className={formStyles.title}>Analyst Dashboard</h1>
-            <h2 className={formStyles.subtitle}>Approved Articles Ready for Analysis</h2>
+            <td className={formStyles.actions}>
+                <button onClick={toggleView} className={formStyles.submitButton}>
+                    {showAnalysed ? 'View Non-Analysed Articles' : 'View Analysed Articles'}
+                </button>
+            </td>
+            <h2 className={formStyles.subtitle}>
+                {showAnalysed ? 'Analysed Articles for modification' : 'Approved Articles Ready for Analysis'}
+            </h2>
 
             <table className={formStyles.table}>
                 <thead>
@@ -128,18 +143,18 @@ const AnalystPage = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {articles.length === 0 ? (
+                    {filteredArticles.length === 0 ? (
                         <tr>
                             <td colSpan={7} className={formStyles.noArticles}>
-                                No articles ready for analysis
+                                No articles in this category
                             </td>
                         </tr>
                     ) : (
-                        articles.map((article) => {
+                        filteredArticles.map((article) => {
                             const summaryText = summaries[article._id] ?? article.summary ?? '';
                             const isEmpty = summaryText.trim() === '';
                             const hasExistingSummary = !!article.summary?.trim();
-                            
+
                             return (
                                 <tr key={article._id} className={formStyles.tableRow}>
                                     <td>{article.title}</td>
@@ -149,7 +164,7 @@ const AnalystPage = () => {
                                     <td>{article.doi}</td>
                                     <td>
                                         <textarea
-                                            value={summaryText} 
+                                            value={summaryText}
                                             onChange={(e) => setSummaries({
                                                 ...summaries,
                                                 [article._id]: e.target.value
@@ -161,8 +176,8 @@ const AnalystPage = () => {
                                     <td className={formStyles.actions}>
                                         <button
                                             className={
-                                                isEmpty && hasExistingSummary 
-                                                    ? formStyles.removeButton 
+                                                isEmpty && hasExistingSummary
+                                                    ? formStyles.removeButton
                                                     : formStyles.submitButton
                                             }
                                             onClick={() =>
