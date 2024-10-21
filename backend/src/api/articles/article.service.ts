@@ -39,12 +39,17 @@ export class ArticleService {
       return deletedArticle;
   }
 
-  async updateSummary(id: string, updateData: { summary: string }): Promise<Article> {
+  async updateSummary(id: string, updateData: { summary: string, claim: string, evidenceResult: string, researchType: string, participantType: string, isAnalysed: boolean }): Promise<Article> {
     const article = await this.articleModel.findById(id);
     if (!article) {
         throw new NotFoundException('Article not found');
     }
     article.summary = updateData.summary; // Update the summary field
+    article.claim = updateData.claim;
+    article.evidenceResult = updateData.evidenceResult;
+    article.researchType = updateData.researchType;
+    article.participantType = updateData.participantType;
+    article.isAnalysed = updateData.isAnalysed;
     return article.save(); // Save the updated article
   }
 

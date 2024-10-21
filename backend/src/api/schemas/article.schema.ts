@@ -53,6 +53,21 @@ export class Article {
   
     @Prop({ default: 0 })
     numberOfRatings: number;
+
+    @Prop({ default: "" })
+    claim: string;
+  
+    @Prop({ default: "" })
+    evidenceResult: string;
+  
+    @Prop({ default: "" })
+    researchType: string;
+  
+    @Prop({ default: "" })
+    participantType: string;
+
+    @Prop({ default: false })
+    isAnalysed: boolean;
 }
 
 export const ArticleSchema = SchemaFactory.createForClass(Article);

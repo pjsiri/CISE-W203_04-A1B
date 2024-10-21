@@ -15,4 +15,9 @@ export class CreateArticleDto {
     averageRating: number = 0;
     totalRating: number = 0;
     numberOfRatings: number = 0;
+    claim: string = "";
+    evidenceResult: string = "";
+    researchType: string = "";
+    participantType: string = "";
+    isAnalysed: boolean = false;
 }  

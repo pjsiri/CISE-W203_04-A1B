@@ -15,13 +15,22 @@ interface Article {
     pages: string;
     doi: string;
     summary: string;
-    status: string; // New field to track status
+    status: string;
+    claim: string;
+    evidenceResult: string;
+    researchType: string;
+    participantType: string;
+    isAnalysed: boolean; // New field to track if the article has been analysed
 }
 
 const AnalystPage = () => {
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
     const [summaries, setSummaries] = useState<{ [key: number]: string }>({});
+    const [claims, setClaims] = useState<{ [key: number]: string }>({});
+    const [evidenceResults, setEvidenceResults] = useState<{ [key: number]: string }>({});
+    const [researchTypes, setResearchTypes] = useState<{ [key: number]: string }>({});
+    const [participantTypes, setParticipantTypes] = useState<{ [key: number]: string }>({});
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
     const [showAnalysed, setShowAnalysed] = useState(false); // Toggle between non-analysed and analysed
     const router = useRouter();
@@ -65,19 +74,50 @@ const AnalystPage = () => {
         }
     }, [loading]);
 
-    const submitAnalysis = async (id: number, newSummary: string) => {
+    const submitAnalysis = async (id: number, newSummary: string, newClaim: string, newEvidenceResult: string, newResearchType: string, newParticipantType: string) => {
         try {
-            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { summary: newSummary, status: 'analysed' });
+            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { 
+                summary: newSummary, 
+                isAnalysed: true,
+                claim: newClaim, 
+                evidenceResult: newEvidenceResult, 
+                researchType: newResearchType, 
+                participantType: newParticipantType
+            });
 
             setArticles(
                 articles.map((article) =>
-                    article._id === id ? { ...article, summary: newSummary, status: 'analysed' } : article
+                    article._id === id ? { 
+                        ...article, 
+                        summary: newSummary, 
+                        isAnalysed: true,
+                        claim: newClaim, 
+                        evidenceResult: newEvidenceResult, 
+                        researchType: newResearchType, 
+                        participantType: newParticipantType
+                    } : article
                 )
             );
 
             const newSummaries = { ...summaries };
             delete newSummaries[id];
             setSummaries(newSummaries);
+
+            const newClaims = { ...claims };
+            delete newClaims[id];
+            setClaims(newClaims);
+
+            const newEvidenceResults = { ...evidenceResults };
+            delete newEvidenceResults[id];
+            setEvidenceResults(newEvidenceResults);
+
+            const newResearchTypes = { ...researchTypes };
+            delete newResearchTypes[id];
+            setResearchTypes(newResearchTypes);
+
+            const newParticipantTypes = { ...participantTypes };
+            delete newParticipantTypes[id];
+            setParticipantTypes(newParticipantTypes);
 
             // Show success message
             setShowSuccessMessage(true);
@@ -89,17 +129,48 @@ const AnalystPage = () => {
 
     const removeAnalysis = async (id: number) => {
         try {
-            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { summary: '', status: 'approved' });
+            await axios.put(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/${id}`, { 
+                summary: '', 
+                isAnalysed: false,
+                claim: '', 
+                evidenceResult: '', 
+                researchType: '', 
+                participantType: ''
+            });
 
             setArticles(
                 articles.map((article) =>
-                    article._id === id ? { ...article, summary: '', status: 'approved' } : article
+                    article._id === id ? { 
+                        ...article, 
+                        summary: '', 
+                        isAnalysed: false,
+                        claim: '', 
+                        evidenceResult: '', 
+                        researchType: '', 
+                        participantType: ''
+                    } : article
                 )
             );
 
             const newSummaries = { ...summaries };
             delete newSummaries[id];
             setSummaries(newSummaries);
+
+            const newClaims = { ...claims };
+            delete newClaims[id];
+            setClaims(newClaims);
+
+            const newEvidenceResults = { ...evidenceResults };
+            delete newEvidenceResults[id];
+            setEvidenceResults(newEvidenceResults);
+
+            const newResearchTypes = { ...researchTypes };
+            delete newResearchTypes[id];
+            setResearchTypes(newResearchTypes);
+
+            const newParticipantTypes = { ...participantTypes };
+            delete newParticipantTypes[id];
+            setParticipantTypes(newParticipantTypes);
 
             setShowSuccessMessage(true);
             setTimeout(() => setShowSuccessMessage(false), 3000);
@@ -111,7 +182,7 @@ const AnalystPage = () => {
     const toggleView = () => setShowAnalysed(!showAnalysed); // Toggle between the two views
 
     const filteredArticles = articles.filter(article => 
-        showAnalysed ? article.status === 'analysed' : article.status === 'approved'
+        showAnalysed ? article.isAnalysed : !article.isAnalysed
     );
 
     if (loading) {
@@ -139,21 +210,29 @@ const AnalystPage = () => {
                         <th>Year</th>
                         <th>DOI</th>
                         <th>Analysis</th>
+                        <th>Claim</th>
+                        <th>Evidence Result</th>
+                        <th>Research Type</th>
+                        <th>Participant Type</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredArticles.length === 0 ? (
                         <tr>
-                            <td colSpan={7} className={formStyles.noArticles}>
+                            <td colSpan={11} className={formStyles.noArticles}>
                                 No articles in this category
                             </td>
                         </tr>
                     ) : (
                         filteredArticles.map((article) => {
                             const summaryText = summaries[article._id] ?? article.summary ?? '';
-                            const isEmpty = summaryText.trim() === '';
-                            const hasExistingSummary = !!article.summary?.trim();
+                            const claimText = claims[article._id] ?? article.claim ?? '';
+                            const evidenceResultText = evidenceResults[article._id] ?? article.evidenceResult ?? '';
+                            const researchTypeText = researchTypes[article._id] ?? article.researchType ?? '';
+                            const participantTypeText = participantTypes[article._id] ?? article.participantType ?? '';
+                            const isEmpty = summaryText.trim() === '' && claimText.trim() === '' && evidenceResultText.trim() === '' && researchTypeText.trim() === '' && participantTypeText.trim() === '';
+                            const hasExistingSummary = !!article.summary?.trim() || !!article.claim?.trim() || !!article.evidenceResult?.trim() || !!article.researchType?.trim() || !!article.participantType?.trim();
 
                             return (
                                 <tr key={article._id} className={formStyles.tableRow}>
@@ -173,6 +252,50 @@ const AnalystPage = () => {
                                             className={formStyles.analysisInput}
                                         />
                                     </td>
+                                    <td>
+                                        <textarea
+                                            value={claimText}
+                                            onChange={(e) => setClaims({
+                                                ...claims,
+                                                [article._id]: e.target.value
+                                            })}
+                                            placeholder="Enter the claim here"
+                                            className={formStyles.analysisInput}
+                                        />
+                                    </td>
+                                    <td>
+                                        <textarea
+                                            value={evidenceResultText}
+                                            onChange={(e) => setEvidenceResults({
+                                                ...evidenceResults,
+                                                [article._id]: e.target.value
+                                            })}
+                                            placeholder="Enter the evidence result here"
+                                            className={formStyles.analysisInput}
+                                        />
+                                    </td>
+                                    <td>
+                                        <textarea
+                                            value={researchTypeText}
+                                            onChange={(e) => setResearchTypes({
+                                                ...researchTypes,
+                                                [article._id]: e.target.value
+                                            })}
+                                            placeholder="Enter the research type here"
+                                            className={formStyles.analysisInput}
+                                        />
+                                    </td>
+                                    <td>
+                                        <textarea
+                                            value={participantTypeText}
+                                            onChange={(e) => setParticipantTypes({
+                                                ...participantTypes,
+                                                [article._id]: e.target.value
+                                            })}
+                                            placeholder="Enter the participant type here"
+                                            className={formStyles.analysisInput}
+                                        />
+                                    </td>
                                     <td className={formStyles.actions}>
                                         <button
                                             className={
@@ -183,9 +306,9 @@ const AnalystPage = () => {
                                             onClick={() =>
                                                 isEmpty && hasExistingSummary
                                                     ? removeAnalysis(article._id)
-                                                    : submitAnalysis(article._id, summaryText)
+                                                    : submitAnalysis(article._id, summaryText, claimText, evidenceResultText, researchTypeText, participantTypeText)
                                             }
-                                            disabled={!summaryText.trim() && !hasExistingSummary}
+                                            disabled={!summaryText.trim() && !claimText.trim() && !evidenceResultText.trim() && !researchTypeText.trim() && !participantTypeText.trim() && !hasExistingSummary}
                                         >
                                             {isEmpty && hasExistingSummary ? 'Remove Analysis' : hasExistingSummary ? 'Edit Analysis' : 'Submit Analysis'}
                                         </button>
