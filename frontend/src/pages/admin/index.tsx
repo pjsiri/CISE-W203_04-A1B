@@ -10,6 +10,9 @@ const AdminPage = () => {
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(DefaultEmptyArticle);
   const [loading, setLoading] = useState(true);
   const [formMode, setFormMode] = useState<"add" | "edit">("add");
+  const [seMethods, setSeMethods] = useState<string[]>([]);
+  const [selectedSeMethod, setSelectedSeMethod] = useState<string>("");
+  const [newSeMethod, setNewSeMethod] = useState<string>("");
   const router = useRouter();
 
   // Check if the user is authenticated
@@ -41,15 +44,38 @@ const AdminPage = () => {
       }
   };
 
+    // Fetch distinct SE Methods from the backend API
+    useEffect(() => {
+      const fetchSeMethods = async () => {
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles/distinct-se-methods`);
+          const data = await response.json();
+  
+          if (Array.isArray(data)) {
+            setSeMethods(data);
+          } else {
+            console.error("Expected an array of SE Methods, but got:", data);
+          }
+        } catch (err) {
+          console.error('Error fetching SE Methods:', err);
+          alert('Failed to fetch SE Methods. Please try again later.');
+        }
+      };
+  
+      fetchSeMethods();
+    }, []);
+
   // Select an article for editing
   const selectArticle = (article: Article) => {
     setSelectedArticle(article);
+    setSelectedSeMethod(article.seMethod || "");
     setFormMode("edit");
   };
 
   // Clear the form
   const clearForm = () => {
     setSelectedArticle(DefaultEmptyArticle);
+    setSelectedSeMethod("");
     setFormMode("add");
   };
 
@@ -233,20 +259,79 @@ const AdminPage = () => {
 
           
           <div className={formStyles.inputGroup}>
-            <label className={formStyles.label}>
+          <label className={formStyles.label}>
               SE Method:
+              <select
+                className={formStyles.select}
+                name="seMethod"
+                value={selectedSeMethod}
+                onChange={(e) => setSelectedSeMethod(e.target.value)}
+                required
+              >
+                <option value="">Select existing SE Method</option>
+                {seMethods.map((method) => (
+                  <option key={method} value={method}>
+                    {method}
+                  </option>
+                ))}
+              </select>
               <input
                 className={formStyles.input}
                 type="text"
-                name="seMethod"
-                value={selectedArticle?.seMethod || ""}
+                placeholder="Or enter new SE Method"
+                value={newSeMethod}
+                onChange={(e) => setNewSeMethod(e.target.value)}
+              />
+            </label>
+
+            <label className={formStyles.label}>
+              Claim:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="claim"
+                value={selectedArticle?.claim || ""}
                 onChange={handleInputChange}
-                required
               />
             </label>
           </div>
 
           <div className={formStyles.inputGroup}>
+            <label className={formStyles.label}>
+              Evidence Result:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="evidenceResult"
+                value={selectedArticle?.evidenceResult || ""}
+                onChange={handleInputChange}
+              />
+            </label>
+
+            <label className={formStyles.label}>
+              Research Type:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="researchType"
+                value={selectedArticle?.researchType || ""}
+                onChange={handleInputChange}
+              />
+            </label>
+          </div>
+
+          <div className={formStyles.inputGroup}>
+            <label className={formStyles.label}>
+              Participant Type:
+              <input
+                className={formStyles.input}
+                type="text"
+                name="participantType"
+                value={selectedArticle?.participantType || ""}
+                onChange={handleInputChange}
+              />
+            </label>
+
             <label className={formStyles.label}>
               Summary:
               <input
@@ -259,20 +344,36 @@ const AdminPage = () => {
             </label>
           </div>
 
-          <label className={formStyles.label}>
-            Status:
-            <select
-              className={formStyles.select}
-              name="status"
-              value={selectedArticle?.status || "pending_moderation"}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="pending_moderation">Pending Moderation</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </label>
+          <div className={formStyles.inputGroup}>
+            <label className={formStyles.label}>
+              Status:
+              <select
+                className={formStyles.select}
+                name="status"
+                value={selectedArticle?.status || "pending_moderation"}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="pending_moderation">Pending Moderation</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </label>
+
+            <label className={formStyles.label}>
+              Is Analysed:
+              <select
+                className={formStyles.select}
+                name="isAnalysed"
+                value={selectedArticle?.isAnalysed ? "true" : "false"}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+              </select>
+            </label>
+          </div>
 
           <button className={formStyles.button} type="submit">
             {formMode === "edit" ? "Update Article" : "Add Article"}
@@ -296,6 +397,7 @@ const AdminPage = () => {
               <th className={formStyles.th}>Journal</th>
               <th className={formStyles.th}>Year</th>
               <th className={formStyles.th}>Status</th>
+              <th className={formStyles.th}>Is Analysed</th>
               <th className={formStyles.th}>Actions</th>
             </tr>
           </thead>
@@ -307,6 +409,8 @@ const AdminPage = () => {
                 <td className={formStyles.td}>{article.source}</td>
                 <td className={formStyles.td}>{article.pubYear}</td>
                 <td className={formStyles.td}>{article.status}</td>
+                <td className={formStyles.td}>
+                  {article.isAnalysed ? "Yes" : "No"}</td>
                 <td className={formStyles.td}>
                   <button
                     className={formStyles.actionButton}
