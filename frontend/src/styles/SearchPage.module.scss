@@ -1,176 +1,211 @@
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    min-height: 100vh;
-    background-color: #f0f4f8;
-    padding: 20px;
-  }
-  
-  .title {
-    font-size: 2.5rem;
-    color: #333;
-    margin-bottom: 40px;
-    text-align: center;
-  }
-  
-  .formGroup {
-    margin-bottom: 20px;
-    width: 100%;
-    max-width: 600px;
-  }
-  
-  .label {
-    display: block;
-    font-size: 1.2rem;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .select,
-  .input {
-    width: 100%;
-    padding: 10px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 10px;
-  }
-  
-  .button {
-    background-color: #0070f3;
-    color: white;
-    border: none;
-    padding: 15px 40px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: background-color 0.3s ease;
-    margin-top: 20px;
-  
-    &:hover {
-      background-color: #005bb5;
-    }
-  
-    &:focus {
-      outline: none;
-      box-shadow: 0 0 5px rgba(0, 112, 243, 0.5);
-    }
-  }
-  
-  .sortInstructions {
-    margin-top: 50px;
-    font-size: 1.2rem;
-    color: #333;
-    text-align: center;
-  }
-  
-  .table {
-    width: 100%;
-    max-width: 1200px;
-    border-collapse: collapse;
-    margin-top: 40px;
-  }
-  
-  .th,
-  .td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-    cursor: pointer; /* Change cursor to pointer */
-    transition: background-color 0.3s ease; /* Smooth transition for background color */
-  
-    &:hover {
-      background-color: #e0e0e0; /* Darker background on hover */
-    }
-  }
-  
-  .tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .rating {
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-  }
-  
-  .savedContainer {
-    margin-top: 40px;
-    width: 100%;
-    max-width: 250px;
-  }
-  
-  .savedTitle {
-    font-size: 1.8rem;
-    color: #333;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  .savedList {
-    margin-top: 15px;
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-    background-color: #fff;
-  }
-  
-  .savedItem {
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .savedItem:last-child {
-    border-bottom: none;
-  }
-  
-  .savedItem p {
-    margin: 5px 0;
-  }
-  
-  .savedItem button {
-    margin-top: 10px;
-    padding: 15px 30px;
-    font-size: 1rem;
-    cursor: pointer;
-    border-radius: 8px;
-  }
-  
-  .savedFilter {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .savedFilter button {
-    margin-top: 0px;
-    padding: 15px 30px;
-    font-size: 1rem;
-    cursor: pointer;
-    border-radius: 8px;
-  }
-  
-  .columnVisibility {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  .summary {
-    padding: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  background-color: #f0f4f8;
+  padding: 20px;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.content {
+  display: flex;
+  width: 100%;
+  max-width: 1700px;
+}
+
+.leftColumn,
+.rightColumn {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.leftColumn {
+  max-width: 330px;
+  border-right: 2px solid #ccc;
+}
+
+.hr {
+  width: 100%;
+  border: 1px solid #ccc;
+  margin: 10px 0;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px;
+}
+
+.label {
+  display: block;
+  font-size: 1.2rem;
+  color: #333;
+  max-width: 315px;
+}
+
+.select,
+.input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.button {
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+  margin-top: 15px;
+}
+
+.button:hover {
+  background-color: #005bb5;
+}
+
+.button:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 112, 243, 0.5);
+}
+
+.sortInstructions {
+  margin-top: 30px;
+  font-size: 1.1rem;
+  color: #333;
+  text-align: center;
+}
+
+.table {
+  width: 100%;
+  max-width: 1200px;
+  border-collapse: collapse;
+  margin-top: 40px;
+}
+
+.th,
+.td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  cursor: pointer; /* Change cursor to pointer */
+  transition: background-color 0.3s ease; /* Smooth transition for background color */
+}
+
+.th:hover {
+  background-color: #e0e0e0; /* Darker background on hover */
+}
+
+.tr:hover {
+  background-color: #f1f1f1;
+}
+
+.rating {
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.searchTitle {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.savedContainer {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.savedTitle {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.savedList {
+  margin-top: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  background-color: #fff;
+}
+
+.savedItem {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.savedItem:last-child {
+  border-bottom: none;
+}
+
+.savedItem p {
+  margin: 5px 0;
+}
+
+.savedItem button {
+  margin-top: 10px;
+  padding: 15px 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.savedFilter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.savedFilter button {
+  margin-top: 0px;
+  padding: 15px 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.columnVisibility {
+  text-align: center;
+}
+
+.columnVisibility label {
+  margin-bottom: 10px;
+}
+
+.summary {
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}

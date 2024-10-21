@@ -13,6 +13,11 @@ export type Article = {
     status?: string;
     submitterName?: string;
     submitterEmail?: string;
+    claim?: string;
+    evidenceResult?: string;
+    researchType?: string;
+    participantType?: string;
+    isAnalysed?: boolean;
 };
 
 export const DefaultEmptyArticle: Article = {
@@ -30,4 +35,9 @@ export const DefaultEmptyArticle: Article = {
     status: 'pending_moderation',
     submitterName: '',
     submitterEmail: '',
+    claim: '',
+    evidenceResult: '',
+    researchType: '',
+    participantType: '',
+    isAnalysed: false,
 }    

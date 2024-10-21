@@ -23,13 +23,7 @@ const PopulatedNavBar = () => {
             <NavItem route="/" end>
                 Home
             </NavItem>
-            <NavItem dropdown route="/articles">
-                Articles <IoMdArrowDropdown />
-                <NavDropdown>
-                    <NavItem route="/articles">View articles</NavItem>
-                    <NavItem route="/articles/CreateArticle">Submit article</NavItem>
-                </NavDropdown>
-            </NavItem>
+            <NavItem route="/articles/CreateArticle">Submit Article</NavItem>
             <NavItem route="/search">Search</NavItem>
             {session?.user?.role === 'analyst' && (
               <NavItem route="/analyst">Analyst</NavItem>

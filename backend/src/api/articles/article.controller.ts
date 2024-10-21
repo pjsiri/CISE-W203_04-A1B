@@ -190,8 +190,10 @@ export class ArticleController {
   }
 
   // Update an article's summary (analysis)
-@Put('/:id/summary')
-async updateArticleSummary(@Param('id') id: string, @Body() updateData: { summary: string }) {
+  @Put('/:id/summary')
+  async updateArticleSummary(
+    @Param('id') id: string,
+    @Body() updateData: { summary: string, claim: string, evidenceResult: string, researchType: string, participantType: string, isAnalysed: boolean },) {
     try {
         await this.articleService.updateSummary(id, updateData); // Call the service method
         return { message: 'Article summary updated successfully' };

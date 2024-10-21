@@ -182,7 +182,7 @@ const ModeratorPage = () => {
           <tr>
             <th>Title</th>
             <th>Authors</th>
-            <th>Journal</th>
+            <th>Journal/Source</th>
             <th>Year</th>
             <th>DOI</th>
             <th>Status</th>
