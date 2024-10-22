@@ -26,6 +26,27 @@ interface SavedSearch {
   timestamp: number;
 }
 
+// searchPage.test.ts
+export function testSearchPage(method: string, startYear: string, endYear: string) {
+  // Validation logic for search parameters
+  if (!method) {
+    return { success: false, message: "SE Method is required." };
+  }
+
+  const currentYear = new Date().getFullYear();
+
+  if (startYear && (isNaN(Number(startYear)) || Number(startYear) < 1900 || Number(startYear) > currentYear)) {
+    return { success: false, message: "Start year must be a valid year between 1900 and the current year." };
+  }
+
+  if (endYear && (isNaN(Number(endYear)) || Number(endYear) < 1900 || Number(endYear) > currentYear)) {
+    return { success: false, message: "End year must be a valid year between 1900 and the current year." };
+  }
+
+  // If the input passes validation, return a success response
+  return { success: true, message: "Search parameters are valid." };
+}
+
 const SearchPage = () => {
   const [method, setMethod] = useState("");
   const [startYear, setStartYear] = useState("");

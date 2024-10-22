@@ -34,11 +34,13 @@ const ModeratorPage = () => {
 
   // Fetch articles with "pending_moderation" status from the backend API
   useEffect(() => {
+    if (loading) return;
+  
     const fetchPendingArticles = async () => {
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/articles?status=pending_moderation`);
         const data = await response.json();
-
+  
         if (Array.isArray(data)) {
           setArticles(data);
         } else {
@@ -48,10 +50,8 @@ const ModeratorPage = () => {
         console.error('Error fetching articles:', err);
       }
     };
-
-    if (!loading) {
-      fetchPendingArticles(); // Fetch articles only after session check
-    }
+  
+    fetchPendingArticles();
   }, [loading]);
 
   // Fetch distinct SE Methods from the backend API

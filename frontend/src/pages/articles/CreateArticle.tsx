@@ -1,8 +1,23 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Article, DefaultEmptyArticle } from "@/components/Article"; // Import Article and DefaultEmptyArticle
 import submitStyles from "./SubmitArticlePage.module.scss"; // Styling for the form
 import { send, init } from "emailjs-com";
+
+// submitArticle.test.ts
+export function testSubmitArticle(article: Article) {
+  // Validation logic for article submission
+  if (!article.submitterName || !article.submitterEmail) {
+    return { success: false, message: "Submitter information is required." };
+  }
+
+  if (!article.title || !article.authors || !article.source || !article.pubYear || !article.volume || !article.number || !article.pages || !article.doi) {
+    return { success: false, message: "All article fields are required." };
+  }
+
+  return { success: true, message: "Article submitted successfully!" };
+}
 
 const SubmitArticlePage = () => {
   const [article, setArticle] = useState<Article>(DefaultEmptyArticle);
