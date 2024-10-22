@@ -1,16 +1,20 @@
 .navbar {
+    position: fixed;
     display: flex;
-    position: relative;
-    top: 0;
-    flex-direction: row;
-    width: 100%;
     background-color: darkblue;
-    align-items: center;
     color: aliceblue;
-    font-size: 1.5em;
+    // background-color: #00000090;
+    // color: white;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4rem;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    list-style-type: none;
+    align-items: center;
+    font-size: larger;
     font-weight: bold;
     transition: top 0.5s;
-    height: fit-content;
 }
 
 .hide {
